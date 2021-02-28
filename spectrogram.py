@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import IPython
 
 
-def spectrogramme(file,time_step=0.05,play=False,frequence_enregistrement=None, displayStretch = 10):
+def spectrogramme(file, time_step=0.05, play=False,frequence_enregistrement=None, displayStretch = 10):
     #display stretch = coefficient de division de la hauteur max (frequence du graphique)
     son_array,frequence_enr = soundfile.read(file)
     if play:
@@ -46,7 +46,7 @@ def spectrogramme(file,time_step=0.05,play=False,frequence_enregistrement=None, 
     axs.set_yticklabels((T*linspace(ymin,ymax,10)).round(2))
     plt.show()
 
-spectrogramme('filsDuVoisin.wav', displayStretch=20)
+spectrogramme('faded.wav', displayStretch=20)
 
 
 IPython.embed()
