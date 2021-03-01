@@ -52,7 +52,7 @@ def spectrogramme_wav(file,time_step=0.05,play=False,frequence_enregistrement=No
     axs.set_yticklabels((T*linspace(ymin,ymax,10)).round(2))
     plt.show()
 
-spectrogramme_wav('test.wav', displayStretch=15,play=True)
+spectrogramme('faded.wav', displayStretch=20)
 
 
 IPython.embed()
