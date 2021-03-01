@@ -3,12 +3,17 @@ import sounddevice as sd
 from numpy.fft import fft
 from numpy import abs,transpose,array,linspace,round,flip
 import matplotlib.pyplot as plt
+from pydub import AudioSegment 
 import IPython
 
 
-def spectrogramme(file,time_step=0.05,play=False,frequence_enregistrement=None, displayStretch = 10):
+def spectrogramme_wav(file,time_step=0.05,play=False,frequence_enregistrement=None, displayStretch = 10):
     #display stretch = coefficient de division de la hauteur max (frequence du graphique)
-    son_array,frequence_enr = soundfile.read(file)
+    sound = AudioSegment.from_wav(file)
+    sound = sound.set_channels(1)
+    sound.export('temp.wav', format='wav')
+
+    son_array,frequence_enr = soundfile.read('temp.wav')
     if play:
         sd.play(son_array,frequence_enr)
 
@@ -20,7 +25,7 @@ def spectrogramme(file,time_step=0.05,play=False,frequence_enregistrement=None, 
 
     T = Te * N
 
-    step_index = time_step * frequence_enr
+    step_index = int(time_step * frequence_enr)
 
     #Computing Matrix (matrice sautante)
     fft_mat = []
@@ -30,6 +35,7 @@ def spectrogramme(file,time_step=0.05,play=False,frequence_enregistrement=None, 
 
     #Plotting
     fig,axs = plt.subplots()
+   # tmp = transpose (fft_mat)
     cm = axs.imshow(transpose(fft_mat),cmap = 'Blues')
     ymax = axs.get_ylim()[0]
     axs.set_ylim(0,ymax/displayStretch) #empiric for size
@@ -46,7 +52,7 @@ def spectrogramme(file,time_step=0.05,play=False,frequence_enregistrement=None, 
     axs.set_yticklabels((T*linspace(ymin,ymax,10)).round(2))
     plt.show()
 
-spectrogramme('filsDuVoisin.wav', displayStretch=20)
+spectrogramme_wav('test.wav', displayStretch=15,play=True)
 
 
 IPython.embed()
