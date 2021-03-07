@@ -1,5 +1,5 @@
 # Projet
- Mini Projet de Signal S8 sur le cachage d'image dans un son au travers de son spectrogramme
+ Mini Projet de Signal S8 sur la dissimulation d'images dans un son au travers de son spectrogramme
 
 Le projet est constitué de multiples deux sous dossiers et de plusieurs script et librairies : 
 * audio :  
