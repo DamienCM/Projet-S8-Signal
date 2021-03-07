@@ -22,9 +22,9 @@ def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
     if not stereo:
         sound = AudioSegment.from_wav(file)
         sound = sound.set_channels(1)
-        sound.export('temp.wav', format='wav')
+        sound.export('./audio/temp.wav', format='wav')
 
-        son_array, frequence_enr = soundfile.read('temp.wav')
+        son_array, frequence_enr = soundfile.read('./audio/temp.wav')
     else:
         son_array, frequence_enr = soundfile.read(file)
 
@@ -37,7 +37,7 @@ def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
     return son_array, frequence_enr
 
 
-def matrixComputing(son_array, frequence_enr, time_step, stereo):
+def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False):
     N = len(son_array)
     Te = 1 / frequence_enr
     T = Te * N
@@ -45,8 +45,10 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo):
     step_index = int(time_step * frequence_enr)
 
     # Plotting the signal
-    plt.plot(linspace(0, 1, len(son_array)), son_array)
-    plt.show()
+    if plot:
+        plt.plot(linspace(0, 1, len(son_array)), son_array)
+        plt.title("Son au cours du temps (original)")
+        plt.show()
 
     # Computing Matrix (matrice sautante)
     fft_mat = []
@@ -55,14 +57,14 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo):
                       0:int(step_index / 2)]  # on ne garde que la moitie des valeurs (repetition)
         fft_mat.append(current_fft)
         # print(shape(current_fft))
-        if (i == 101):
+        '''if (i == 101):
             # print(current_fft)
             # print(shape(current_fft))
             print(abs(ifft(current_fft)))
             reversed_sound = real(ifft(current_fft))
             plt.plot(linspace(0, 1, len(reversed_sound)), reversed_sound)
             plt.title("test")
-            plt.show()
+            plt.show()'''
 
     # print(shape(fft_mat))
 
@@ -107,12 +109,12 @@ def spectroPlotting(fft_mat, T, displayStretch, stereo, cmap):
             axs.set_yticklabels((T * linspace(ymin, ymax, 10)).round(2))
             cbar = fig.colorbar(cm, ax=axs)
             cbar.set_label('Amplitude [1]')
-
+    plt.title('spectrogramme du son')
     plt.show()
     return
 
 
-def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement=None, displayStretch=10, cmap='Blues',
+def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement=None, displayStretch=1, cmap='Blues',
                       stereo=False):
     # display stretch = coefficient de division de la hauteur max (frequence du graphique)
     plt.rcParams["figure.figsize"] = (17, 10)
@@ -120,13 +122,15 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
     son_array, frequence_enr = getSound(file, play, frequence_enregistrement, stereo)
 
     fft_mat, T = matrixComputing(son_array, frequence_enr, time_step, stereo)
+   
+    image_printer(fft_mat)
 
     spectroPlotting(fft_mat,T, displayStretch, stereo, cmap)
 
     return [fft_mat, frequence_enr ]
 
 
-def reconstitution_son(fft_mat_output, frequence_enr, play=True, plot=True):
+def reconstitution_son(fft_mat_output, frequence_enr, play=False, plot=False):
     """
     Entrée: Matrice des fft sautantes:
     Sorties: Vecteur unidimensionnel
@@ -137,11 +141,13 @@ def reconstitution_son(fft_mat_output, frequence_enr, play=True, plot=True):
     for i in range(len(fft_mat_output)):
         reconstitution = concatenate([reconstitution, real(ifft(fft_mat_output[i]))])
 
+
     if play:
-        sd.play(reconstitution, frequence_enr)
+        sd.play(array(reconstitution), frequence_enr)
 
     if plot:
         plt.title('Son reconstitué')
+        plt.legend()
         plt.plot(linspace(0, 1, len(reconstitution)), reconstitution)
         plt.show()
 
@@ -156,15 +162,11 @@ def image_printer(fft_mat_output):
     """
     for i in range(len(fft_mat_output)):
         for j in range(len(fft_mat_output[i])):
-            if j > 200 and j < 204:
-                fft_mat_output[i][j] = 100
+            if j > 20 and j < 30 and i>200 and i<220 :
+                fft_mat_output[i][j] = 800
     return fft_mat_output
 
 
 
-[fft_mat_output, frequence_enr ] = spectrogramme_wav('LA_mono.wav', displayStretch=20, time_step=0.05, play=True, stereo=False)
-
-reconstitution_son(fft_mat_output, frequence_enr)
 
 
-# IPython.embed()
