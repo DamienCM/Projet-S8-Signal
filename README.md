@@ -1,7 +1,7 @@
 # Projet
- Mini Projet de Signal S8 sur le cachage d'image dans un son au travers de son spectrogramme
+ Mini Projet de Signal S8 sur la dissimulation d'images dans un son au travers de son spectrogramme
 
-Le projet est constitué de multiples deux sous dossiers et de plusieurs script et librairies : 
+Le projet est constitué de deux sous dossiers et de plusieurs script et librairies : 
 * audio :  
  Ce dossier contient plusieurs fichiers audio permettant de tester nos scripts
 
@@ -10,7 +10,7 @@ Ce dossier permet de tester nos scripts avec de multiples images
 
 * spectrogram.py 
 
-    Il s'agit de la  librairie principale du projet dans laquelle sont repertoriées toutes les fonctions que nous utiliserons, elle est articulee autour d'une fonction principale : **spectrogram_wav()**, ainsi que plusieurs fonctions annexes qui en sont la decomposition
+    Il s'agit de la  librairie principale du projet dans laquelle sont repertoriées la majorité des fonctions que nous utiliserons, elle est articulée autour d'une fonction principale : **spectrogram_wav()**, de plusieurs fonctions annexes qui en sont la décomposition ainsi que de **reconstitution_son**
 
     * spectrogramme_wav(file, time_step=0.05, play=Fals    frequence_enregistrement=None, displayStretch=10, cmap='Blues'  stereo=False)
     
@@ -22,7 +22,7 @@ Ce dossier permet de tester nos scripts avec de multiples images
 
         Arguments : 
         * file : string, emplacement du fichier sonore
-        * time_step : float, temps avec lequel on effectue les transformees de fourrier sautantes
+        * time_step : float, temps avec lequel on effectue les transformées de Fourier sautantes
         * play : boolean (optional), permet de jouer ou non le son dans les hauts parleurs
         * frequence_enregistrement : float/int (optionnal), permet de preciser la frequence de l'enregistement si on veut qu'elle differe de celle originale
         * displayStretch : float (optionnal) permet de compresser plus ou moins l'affichage vertical du graph
@@ -32,11 +32,11 @@ Ce dossier permet de tester nos scripts avec de multiples images
 
     * getSound(file, play=False, frequence_enregistrement=None, stereo=False)
     
-        Fonction permettant d'obtenir la matrice representative d'un fichier son
+        Fonction permettant d'obtenir la matrice représentative d'un fichier son
 
         Retour :
-         * son_array : ndarray, matrice representative du son audio
-         * frequence_enr : float, frequence d'enregistrement
+         * son_array : ndarray, matrice représentative du son audio
+         * frequence_enr : float, fréquence d'enregistrement
 
         Arguments :
         * file : string, emplacement du fichier à processer 
@@ -49,18 +49,18 @@ Ce dossier permet de tester nos scripts avec de multiples images
         Fonction permettant d'obtenir les transformee successives de l'enregistrement ainsi que la duree totale de l'enregistrement
 
         Retour :
-        * fft_mat : ndarray, matrice de la transformee de fourrier
+        * fft_mat : ndarray, matrice de la transformee de Fourier
         * T : float, duree totale de l'enregistrement
 
         Arguments :
         * son_array : ndarray
         * frequence_enr : float, precise la frequence de l'enregistrement
-        * time_step : float, precise la duree sur laquelle on effectue les transformées de fourrier
+        * time_step : float, precise la duree sur laquelle on effectue les transformées de Fourier
         * stereo : boolean, precise la nature du son present dans la matrice, mono ou stereo
 
     * spectroPlotting(fft_mat, T, displayStretch, stereo, cmap)
 
-        Fonction permettant d'afficher le spectrogramme d'une matrice deja calculee dans un graph puis de l'afficher
+        Fonction permettant d'afficher le spectrogramme d'une matrice déjà calculée dans un graphe puis de l'afficher
 
         Retour : None 
         
@@ -79,7 +79,7 @@ Ce dossier permet de tester nos scripts avec de multiples images
 
         Arguments : 
         * fft_mat_output : ndarray, matrice contentant la fft que l'on doit transformer en son
-        * frequence_enr : float/int, frequence de l'enregistrement a reconstituer
+        * frequence_enr : float/int, fréquence de l'enregistrement à reconstituer
         * play : boolean (optionnal), permet de jouer ou non le son reconstitué
         * plot : boolean (optionnal), permet d'afficher ou non sur un graph le son reconstitué
 
