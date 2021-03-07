@@ -2,15 +2,23 @@ import soundfile
 import sounddevice as sd
 from numpy.fft import fft, ifft
 from numpy import abs, transpose, array, linspace, round, flip, shape, reshape, argmax, real, asarray, concatenate
+import numpy as np
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
 import IPython
 
-
-def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement=None, displayStretch=10, cmap='Blues',
-                      stereo=False):
-    # display stretch = coefficient de division de la hauteur max (frequence du graphique)
-    plt.rcParams["figure.figsize"] = (17, 10)
+def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
+    """
+    Fonction de récupération du son
+    Entrées:
+    - l'adresse du fichier audio
+    - un booléen définissant si le son est joué
+    - la fréquence d'enregistrement
+    - un booléen définissant si le son est en mono ou stéréo
+    Sorties:
+    - un vecteur contenant le son
+    - la fréquence d'enregistrement
+    """
     if not stereo:
         sound = AudioSegment.from_wav(file)
         sound = sound.set_channels(1)
@@ -26,9 +34,12 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
     if frequence_enregistrement is not None:
         frequence_enr = frequence_enregistrement
 
+    return son_array, frequence_enr
+
+
+def matrixComputing(son_array, frequence_enr, time_step, stereo):
     N = len(son_array)
     Te = 1 / frequence_enr
-
     T = Te * N
 
     step_index = int(time_step * frequence_enr)
@@ -44,7 +55,7 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
                       0:int(step_index / 2)]  # on ne garde que la moitie des valeurs (repetition)
         fft_mat.append(current_fft)
         # print(shape(current_fft))
-        if(i == 101):
+        if (i == 101):
             # print(current_fft)
             # print(shape(current_fft))
             print(abs(ifft(current_fft)))
@@ -59,8 +70,10 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
         s = shape(fft_mat)
         fft_mat = reshape(fft_mat, (s[-1], s[0], s[1]))
 
+    return fft_mat, T
+
+def spectroPlotting(fft_mat, T, displayStretch, stereo, cmap):
     # Plotting
-    # tmp = transpose (fft_mat)
     if not stereo:
         fig, axs = plt.subplots()
         cm = axs.imshow(transpose(fft_mat), cmap=cmap)
@@ -96,14 +109,26 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
             cbar.set_label('Amplitude [1]')
 
     plt.show()
+    return
+
+
+def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement=None, displayStretch=10, cmap='Blues',
+                      stereo=False):
+    # display stretch = coefficient de division de la hauteur max (frequence du graphique)
+    plt.rcParams["figure.figsize"] = (17, 10)
+
+    son_array, frequence_enr = getSound(file, play, frequence_enregistrement, stereo)
+
+    fft_mat, T = matrixComputing(son_array, frequence_enr, time_step, stereo)
+
+    spectroPlotting(fft_mat,T, displayStretch, stereo, cmap)
 
     return [fft_mat, frequence_enr ]
 
-def ispectrogramme_wav(fft_mat_output, frequence_enr, play=True, plot=True):
+
+def reconstitution_son(fft_mat_output, frequence_enr, play=True, plot=True):
     """
     Entrée: Matrice des fft sautantes:
-        - lignes:
-        - colonnes:
     Sorties: Vecteur unidimensionnel
     """
     reconstitution = []
@@ -122,8 +147,24 @@ def ispectrogramme_wav(fft_mat_output, frequence_enr, play=True, plot=True):
 
     return reconstitution
 
+
+def image_printer(fft_mat_output):
+    """
+    Fonction d'ajout d'une image dans le spectrogramme
+    Entrée:
+    Sortie:
+    """
+    for i in range(len(fft_mat_output)):
+        for j in range(len(fft_mat_output[i])):
+            if j > 200 and j < 204:
+                fft_mat_output[i][j] = 100
+    return fft_mat_output
+
+
+
 [fft_mat_output, frequence_enr ] = spectrogramme_wav('LA_mono.wav', displayStretch=20, time_step=0.05, play=False, stereo=False)
 
-ispectrogramme_wav(fft_mat_output, frequence_enr)
+reconstitution_son(fft_mat_output, frequence_enr)
 
-IPython.embed()
+
+# IPython.embed()
