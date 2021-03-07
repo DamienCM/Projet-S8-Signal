@@ -162,7 +162,7 @@ def image_printer(fft_mat_output):
 
 
 
-[fft_mat_output, frequence_enr ] = spectrogramme_wav('LA_mono.wav', displayStretch=20, time_step=0.05, play=False, stereo=False)
+[fft_mat_output, frequence_enr ] = spectrogramme_wav('LA_mono.wav', displayStretch=20, time_step=0.05, play=True, stereo=False)
 
 reconstitution_son(fft_mat_output, frequence_enr)
 
