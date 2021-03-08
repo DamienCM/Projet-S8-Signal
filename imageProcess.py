@@ -5,8 +5,9 @@ import matplotlib.image as mpimg
 import IPython
 import spectrogram
 
-img = mpimg.imread('images/JBH.png')
-def convertGrayscale(image):
+
+
+def convertGrayscale(image): #convertit une image en nuance de gris
     tmp = []
     for i in range(len(image)):
         tmp1 =[]
@@ -17,11 +18,14 @@ def convertGrayscale(image):
                     tmp1.append(1)           
             else:
                 tmp1.append( 0.2126*image[i][j][0] + 0.7152*image[i][j][1]+0.0722*image[i][j][2])
-            #0,2126 × Rouge + 0,7152 × Vert + 0,0722 × Bleu. 
+            #0,2126 × Rouge + 0,7152 × Vert + 0,0722 × Bleu. pour obtenir le grayscale
         tmp.append(tmp1)
     return np.array(tmp)
 
 
+img = mpimg.imread('images/JBH.png')
+
+#conversion de l'image
 plt.imshow(img)
 plt.savefig('./images/original.jpg')
 plt.show()
@@ -31,9 +35,11 @@ plt.colorbar()
 plt.savefig('./images/final.jpg')
 plt.show()
 
-spectrogram.spectroPlotting(rot90(img,k=-1),16,displayStretch=1,stereo=False,cmap='Blues')
-son = spectrogram.reconstitution_son(img,1)
+
+#traitement de signal sur l'image
+fig,axs = spectrogram.spectroPlotting(rot90(img,k=-1),16,displayStretch=1,stereo=False,cmap='Blues') #image de base dans le spectrogramme 
+son = spectrogram.reconstitution_son(rot90(img,k=-1),1) 
 matrix,T = spectrogram.matrixComputing(son,16,1,stereo=False)
-spectrogram.spectroPlotting(matrix,T,1,False,'Blues')
+fig,axs = spectrogram.spectroPlotting(matrix,T,1,False,'Blues') #image reconstituée dans le spectrogramme
 
 IPython.embed()

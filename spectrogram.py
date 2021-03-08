@@ -54,19 +54,8 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False):
     fft_mat = []
     for i in range(int(N / step_index)):
         current_fft = abs(fft(son_array[int(i * step_index): int((i + 1) * step_index)]))[
-                      0:int(step_index)]  # on ne garde que la moitie des valeurs (repetition)
+                      0:int(step_index)]  
         fft_mat.append(current_fft)
-        # print(shape(current_fft))
-        '''if (i == 101):
-            # print(current_fft)
-            # print(shape(current_fft))
-            print(abs(ifft(current_fft)))
-            reversed_sound = real(ifft(current_fft))
-            plt.plot(linspace(0, 1, len(reversed_sound)), reversed_sound)
-            plt.title("test")
-            plt.show()'''
-
-    # print(shape(fft_mat))
 
     if stereo:
         s = shape(fft_mat)
@@ -75,7 +64,7 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False):
     return fft_mat, T
 
 def spectroPlotting(fft_mat, T, displayStretch, stereo, cmap):
-    # Plotting
+    # Plotting le spectrogramme
     if not stereo:
         fig, axs = plt.subplots()
         tr =transpose(fft_mat)
@@ -112,7 +101,7 @@ def spectroPlotting(fft_mat, T, displayStretch, stereo, cmap):
             cbar.set_label('Amplitude [1]')
     plt.title('spectrogramme du son')
     plt.show()
-    return
+    return fig,axs
 
 
 def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement=None, displayStretch=1, cmap='Blues',
@@ -124,8 +113,6 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
 
     fft_mat, T = matrixComputing(son_array, frequence_enr, time_step, stereo)
    
-    image_printer(fft_mat)
-
     spectroPlotting(fft_mat,T, displayStretch, stereo, cmap)
 
     return [fft_mat, frequence_enr ]
@@ -149,23 +136,11 @@ def reconstitution_son(fft_mat_output, frequence_enr, play=False, plot=False):
     if plot:
         plt.title('Son reconstitué')
         plt.legend()
-        plt.plot(linspace(0, 1, len(reconstitution)), reconstitution)
+        plt.plot(reconstitution)
+        plt.savefig('plots/son_reconstitue.png')
         plt.show()
 
     return reconstitution
-
-
-def image_printer(fft_mat_output):
-    """
-    Fonction d'ajout d'une image dans le spectrogramme
-    Entrée:
-    Sortie:
-    """
-    for i in range(len(fft_mat_output)):
-        for j in range(len(fft_mat_output[i])):
-            if j > 20 and j < 30 and i>200 and i<220 :
-                fft_mat_output[i][j] = 800
-    return fft_mat_output
 
 
 
