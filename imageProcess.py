@@ -21,10 +21,12 @@ def convertGrayscale(image):
 
 
 plt.imshow(img)
+plt.savefig('./images/original.jpg')
 plt.show()
 img = convertGrayscale(img)
 plt.imshow(img,cmap='Blues')
 plt.colorbar()
+plt.savefig('./images/final.jpg')
 plt.show()
 
 IPython.embed()
