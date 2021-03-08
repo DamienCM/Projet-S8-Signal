@@ -1,5 +1,9 @@
 # Projet
  Mini Projet de Signal S8 sur la dissimulation d'images dans un son au travers de son spectrogramme
+---
+Pour le rendu intermediaire ne pas prendre en compte le script main2.py 
+---
+
 
 Le projet est constitué de deux sous dossiers et de plusieurs script et librairies : 
 * audio :  
