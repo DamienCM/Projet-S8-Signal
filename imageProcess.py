@@ -1,7 +1,9 @@
 import numpy as np
+from numpy import transpose, rot90
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import IPython
+import spectrogram
 
 img = mpimg.imread('images/JBH.png')
 def convertGrayscale(image):
@@ -28,5 +30,10 @@ plt.imshow(img,cmap='Blues')
 plt.colorbar()
 plt.savefig('./images/final.jpg')
 plt.show()
+
+spectrogram.spectroPlotting(rot90(img,k=-1),16,displayStretch=1,stereo=False,cmap='Blues')
+son = spectrogram.reconstitution_son(img,1)
+matrix,T = spectrogram.matrixComputing(son,16,1,stereo=False)
+spectrogram.spectroPlotting(matrix,T,1,False,'Blues')
 
 IPython.embed()

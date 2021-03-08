@@ -54,7 +54,7 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False):
     fft_mat = []
     for i in range(int(N / step_index)):
         current_fft = abs(fft(son_array[int(i * step_index): int((i + 1) * step_index)]))[
-                      0:int(step_index / 2)]  # on ne garde que la moitie des valeurs (repetition)
+                      0:int(step_index)]  # on ne garde que la moitie des valeurs (repetition)
         fft_mat.append(current_fft)
         # print(shape(current_fft))
         '''if (i == 101):
@@ -78,7 +78,8 @@ def spectroPlotting(fft_mat, T, displayStretch, stereo, cmap):
     # Plotting
     if not stereo:
         fig, axs = plt.subplots()
-        cm = axs.imshow(transpose(fft_mat), cmap=cmap)
+        tr =transpose(fft_mat)
+        cm = axs.imshow(tr, cmap=cmap)
         ymax = axs.get_ylim()[0]
         axs.set_ylim(0, ymax / displayStretch)  # empiric for size
         axs.set_aspect('auto')  # Pixels arn't squares anymore
@@ -116,7 +117,7 @@ def spectroPlotting(fft_mat, T, displayStretch, stereo, cmap):
 
 def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement=None, displayStretch=1, cmap='Blues',
                       stereo=False):
-    # display stretch = coefficient de division de la hauteur max (frequence du graphique)
+    #display stretch = coefficient de division de la hauteur max (frequence du graphique)
     plt.rcParams["figure.figsize"] = (17, 10)
 
     son_array, frequence_enr = getSound(file, play, frequence_enregistrement, stereo)
