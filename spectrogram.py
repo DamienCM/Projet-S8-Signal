@@ -1,11 +1,9 @@
 import soundfile
 import sounddevice as sd
 from numpy.fft import fft, ifft
-from numpy import abs, transpose, array, linspace, round, flip, shape, reshape, argmax, real, asarray, concatenate
-import numpy as np
+from numpy import abs, transpose, array, linspace, flip, shape, reshape, real, asarray, concatenate
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
-import IPython
 
 def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
     """
@@ -19,7 +17,7 @@ def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
     - un vecteur contenant le son
     - la fréquence d'enregistrement
     """
-    if not stereo:
+    if not stereo: #gestion mono/stereo
         sound = AudioSegment.from_wav(file)
         sound = sound.set_channels(1)
         sound.export('./audio/temp.wav', format='wav')
@@ -28,10 +26,10 @@ def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
     else:
         son_array, frequence_enr = soundfile.read(file)
 
-    if play:
+    if play: # jouer le son
         sd.play(son_array, frequence_enr)
 
-    if frequence_enregistrement is not None:
+    if frequence_enregistrement is not None: # détermination de la fréquence d'enregistrement
         frequence_enr = frequence_enregistrement
 
     return son_array, frequence_enr
@@ -57,7 +55,7 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False):
                       0:int(step_index)]  
         fft_mat.append(current_fft)
 
-    if stereo:
+    if stereo: # Remise en forme des données dans le cas d'un son stéréo
         s = shape(fft_mat)
         fft_mat = reshape(fft_mat, (s[-1], s[0], s[1]))
 
@@ -70,15 +68,15 @@ def spectroPlotting(fft_mat, T, displayStretch, stereo, cmap):
         tr =transpose(fft_mat)
         cm = axs.imshow(tr, cmap=cmap)
         ymax = axs.get_ylim()[0]
-        axs.set_ylim(0, ymax / displayStretch)  # empiric for size
-        axs.set_aspect('auto')  # Pixels arn't squares anymore
+        axs.set_ylim(0, ymax / displayStretch)  # Empirique
+        axs.set_aspect('auto')  # Les pixels ne sont plus carrés
         xmax, xmin = axs.get_xlim()
         axs.set_xticks(linspace(xmin, xmax, 10))
         axs.set_xticklabels(flip(linspace(0, T, 10).round(2)))
         cbar = fig.colorbar(cm)
         cbar.set_label('Amplitude [1]')
         axs.set_xlabel('Temps [s]')
-        axs.set_ylabel('Fréquence [Hz]')  # je suis pas certain de ca
+        axs.set_ylabel('Fréquence [Hz]')
         ymin, ymax = axs.get_ylim()
         axs.set_yticks(linspace(ymin, ymax, 10))
         axs.set_yticklabels((T * linspace(ymin, ymax, 10)).round(2))
@@ -87,13 +85,13 @@ def spectroPlotting(fft_mat, T, displayStretch, stereo, cmap):
         for i, axs in enumerate(axis):
             cm = axs.imshow(transpose(fft_mat[i]), cmap=cmap)
             ymax = axs.get_ylim()[0]
-            axs.set_ylim(0, ymax / displayStretch)  # empiric for size
-            axs.set_aspect('auto')  # Pixels arn't squares anymore
+            axs.set_ylim(0, ymax / displayStretch)  # Empirique
+            axs.set_aspect('auto')  # Les pixels ne sont plus carré
             xmax, xmin = axs.get_xlim()
             axs.set_xticks(linspace(xmin, xmax, 10))
             axs.set_xticklabels(flip(linspace(0, T, 10).round(2)))
             axs.set_xlabel('Temps [s]')
-            axs.set_ylabel('Fréquence [Hz]')  # je suis pas certain de ca
+            axs.set_ylabel('Fréquence [Hz]')
             ymin, ymax = axs.get_ylim()
             axs.set_yticks(linspace(ymin, ymax, 10))
             axs.set_yticklabels((T * linspace(ymin, ymax, 10)).round(2))
@@ -109,10 +107,13 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
     #display stretch = coefficient de division de la hauteur max (frequence du graphique)
     plt.rcParams["figure.figsize"] = (17, 10)
 
+    # Récupération du son
     son_array, frequence_enr = getSound(file, play, frequence_enregistrement, stereo)
 
+    # Cacul de la matrice des FFT
     fft_mat, T = matrixComputing(son_array, frequence_enr, time_step, stereo)
-   
+
+    # Dessin du spectrogramme
     spectroPlotting(fft_mat,T, displayStretch, stereo, cmap)
 
     return [fft_mat, frequence_enr ]
@@ -120,19 +121,22 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
 
 def reconstitution_son(fft_mat_output, frequence_enr, play=False, plot=False):
     """
-    Entrée: Matrice des fft sautantes:
-    Sorties: Vecteur unidimensionnel
+    Entrée: Matrice des fft sautantes (construite via matrixComputing)
+    Sorties: Son reconstitué (vecteur unidimentionnel)
     """
+    # On crée une liste vide transformée en vecteur numpy
     reconstitution = []
     asarray(reconstitution)
 
+    # On applique la FFT inverse sur l'ensemble des pas de temps
     for i in range(len(fft_mat_output)):
-        reconstitution = concatenate([reconstitution, real(ifft(fft_mat_output[i]))])
+        reconstitution = concatenate([reconstitution, real(ifft(fft_mat_output[i]))]) # Concaténation des FFT inverses
 
-
+    # On joue le son reconstitué
     if play:
         sd.play(array(reconstitution), frequence_enr)
 
+    # Dessin du son reconstitué
     if plot:
         plt.title('Son reconstitué')
         plt.legend()
