@@ -87,9 +87,3 @@ Ce dossier permet de tester nos scripts avec de multiples images
         * play : boolean (optionnal), permet de jouer ou non le son reconstitué
         * plot : boolean (optionnal), permet d'afficher ou non sur un graph le son reconstitué
 
-    * image_printer(fft_mat_output)
-
-        Fonction permettant d'ajouter une image sur un spectrogramme
-
-        Retour : 
-        * fft_mat_output : ndarray, **???**
