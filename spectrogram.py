@@ -51,7 +51,7 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False):
     # Computing Matrix (matrice sautante)
     fft_mat = []
     for i in range(int(N / step_index)):
-        current_fft = abs(fft(son_array[int(i * step_index): int((i + 1) * step_index)]))[
+        current_fft = fft(son_array[int(i * step_index): int((i + 1) * step_index)])[
                       0:int(step_index)]  
         fft_mat.append(current_fft)
 
@@ -63,9 +63,10 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False):
 
 def spectroPlotting(fft_mat, T, displayStretch, stereo, cmap):
     # Plotting le spectrogramme
+    fft_mat = abs(fft_mat)
     if not stereo:
         fig, axs = plt.subplots()
-        tr =transpose(fft_mat)
+        tr =transpose(fft_mat)  
         cm = axs.imshow(tr, cmap=cmap)
         ymax = axs.get_ylim()[0]
         axs.set_ylim(0, ymax / displayStretch)  # Empirique
