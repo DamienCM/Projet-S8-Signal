@@ -30,6 +30,9 @@ plt.imshow(img)
 plt.savefig('./images/original.jpg')
 plt.show()
 img = convertGrayscale(img)
+# On change l'image en la doublant 
+img = np.concatenate((np.zeros_like(img),img),axis=0)
+
 plt.imshow(img,cmap='Blues')
 plt.colorbar()
 plt.savefig('./images/final.jpg')
@@ -37,9 +40,10 @@ plt.show()
 
 
 #traitement de signal sur l'image
-fig,axs = spectrogram.spectroPlotting(rot90(img,k=-1),16,displayStretch=1,stereo=False,cmap='Blues') #image de base dans le spectrogramme 
-son = spectrogram.reconstitution_son(rot90(img,k=-1),1) 
-matrix,T = spectrogram.matrixComputing(son,16,1,stereo=False)
-fig,axs = spectrogram.spectroPlotting(matrix,T,1,False,'Blues') #image reconstituée dans le spectrogramme
+if __name__ == "__main__" :
+    fig,axs = spectrogram.spectroPlotting(rot90(img,k=-1),16,displayStretch=1,stereo=False,cmap='Blues') #image de base dans le spectrogramme 
+    son = spectrogram.reconstitution_son(img,1)
+    matrix,T = spectrogram.matrixComputing(son,16,1,stereo=False)
+    fig,axs = spectrogram.spectroPlotting(matrix,T,1,False,'Blues') #image reconstituée dans le spectrogramme
 
-IPython.embed()
+    IPython.embed()
