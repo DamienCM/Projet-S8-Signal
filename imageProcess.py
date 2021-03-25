@@ -23,25 +23,30 @@ def convertGrayscale(image): #convertit une image en nuance de gris
     return np.array(tmp)
 
 
-img = mpimg.imread('images/JBH.png')
+def doublement_plus1(img):
+    ret = np.concatenate((np.flip(img,axis=0),np.array([np.zeros_like(img[0])])),axis=0)
+    ret = np.concatenate((ret,img),axis=0)
+    return ret
 
-#conversion de l'image
-plt.imshow(img)
-plt.savefig('./images/original.jpg')
-plt.show()
-img = convertGrayscale(img)
-# On change l'image en la doublant 
-img = np.concatenate((np.zeros_like(img),img),axis=0)
-
-plt.imshow(img,cmap='Blues')
-plt.colorbar()
-plt.savefig('./images/final.jpg')
-plt.show()
-
+doublement_simple = lambda img : np.concatenate((np.flip(img,axis=0),img),axis=0)
 
 #traitement de signal sur l'image
 if __name__ == "__main__" :
-    fig,axs = spectrogram.spectroPlotting(rot90(img,k=-1),16,displayStretch=1,stereo=False,cmap='Blues') #image de base dans le spectrogramme 
+    img = mpimg.imread('images/JBH.png')
+    #conversion de l'image
+    plt.imshow(img)
+    plt.savefig('./images/original.jpg')
+    plt.show()
+    img = convertGrayscale(img)
+    # On change l'image en la doublant 
+    img = doublement_plus1(img)
+
+    plt.imshow(img,cmap='Blues')
+    plt.colorbar()
+    plt.savefig('./images/final.jpg')
+    plt.show()
+    #img = np.rot90(img)
+    fig,axs = spectrogram.spectroPlotting(img,16,displayStretch=1,stereo=False,cmap='Blues') #image de base dans le spectrogramme 
     son = spectrogram.reconstitution_son(img,1)
     matrix,T = spectrogram.matrixComputing(son,16,1,stereo=False)
     fig,axs = spectrogram.spectroPlotting(matrix,T,1,False,'Blues') #image reconstituée dans le spectrogramme

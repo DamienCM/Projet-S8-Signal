@@ -67,6 +67,7 @@ def spectroPlotting(fft_mat, T, displayStretch, stereo, cmap):
     if not stereo:
         fig, axs = plt.subplots()
         tr =transpose(fft_mat)  
+        tr = fft_mat
         cm = axs.imshow(tr, cmap=cmap)
         ymax = axs.get_ylim()[0]
         axs.set_ylim(0, ymax / displayStretch)  # Empirique
