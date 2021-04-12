@@ -50,6 +50,6 @@ if __name__ == "__main__" :
     fig,axs = spectrogram.spectroPlotting(img,519,displayStretch=1,stereo=False,cmap='Blues') #image de base dans le spectrogramme 
     son = spectrogram.reconstitution_son(img,1)
 
-    matrix,T = spectrogram.matrixComputing(son,519,2,stereo=False)
+    matrix,T = spectrogram.matrixComputing(son,519,2,stereo=False,ponderation=False)
     fig,axs = spectrogram.spectroPlotting(matrix,T,1,False,'Blues') #image reconstituée dans le spectrogramme
     IPython.embed()
