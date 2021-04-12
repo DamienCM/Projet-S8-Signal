@@ -5,7 +5,7 @@ from numpy import abs, transpose, array, linspace, flip, shape, reshape, real, a
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
 
-def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
+def get_sound(file, play=False, frequence_enregistrement=None, stereo=False):
     """
     Fonction de récupération du son
 
@@ -37,7 +37,7 @@ def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
     return son_array, frequence_enr
 
 
-def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False, ponderation=False):
+def matrix_computing(son_array, frequence_enr, time_step, stereo, plot=False, ponderation=False):
     """
     Fonction permettant de calculer la matrice des fft successives de notre signal
     
@@ -107,7 +107,7 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False, pon
 
 
 
-def spectroPlotting(fft_mat, T, displayStretch=1, stereo=False, cmap='Blues'):
+def spectro_plotting(fft_mat, T, displayStretch=1, stereo=False, cmap='Blues'):
     """
     Fonction d'affichage de notre spectrogramme.
 
@@ -188,13 +188,13 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
     plt.rcParams["figure.figsize"] = (17, 10)
 
     # Récupération du son
-    son_array, frequence_enr = getSound(file, play, frequence_enregistrement, stereo)
+    son_array, frequence_enr = get_sound(file, play, frequence_enregistrement, stereo)
 
     # Cacul de la matrice des FFT
-    fft_mat, T = matrixComputing(son_array, frequence_enr, time_step, stereo)
+    fft_mat, T = matrix_computing(son_array, frequence_enr, time_step, stereo)
 
     # Dessin du spectrogramme
-    spectroPlotting(fft_mat,T, displayStretch, stereo, cmap)
+    spectro_plotting(fft_mat,T, displayStretch, stereo, cmap)
 
     return fft_mat, frequence_enr
 
