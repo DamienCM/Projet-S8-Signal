@@ -1,7 +1,7 @@
 import soundfile
 import sounddevice as sd
 from numpy.fft import fft, ifft
-from numpy import abs, transpose, array, linspace, flip, shape, reshape, real, asarray, concatenate
+from numpy import abs, transpose, array, linspace, flip, shape, reshape, real, asarray, concatenate, exp,sum,arange
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
 
@@ -35,7 +35,10 @@ def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
     return son_array, frequence_enr
 
 
-def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False):
+def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False, ponderation=False):
+    def gaussian(t,N):
+        ret =  exp(-(t-N/2)**2/(N/4)**2)
+        return ret/sum(ret)
     N = len(son_array)
     Te = 1 / frequence_enr
     T = Te * N
@@ -51,8 +54,15 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False):
     # Computing Matrix (matrice sautante)
     fft_mat = []
     for i in range(int(N / step_index)):
-        current_fft = fft(son_array[int(i * step_index): int((i + 1) * step_index)])[
-                      0:int(step_index)]  
+        if ponderation:
+            current_son = son_array[int(i * step_index): int((i + 1) * step_index)]
+            N=len(current_son)
+            g = gaussian(arange(1,N+1,1),N)
+            current_son = current_son * g
+            current_fft=fft(current_son)
+        else :
+            current_fft = fft(son_array[int(i * step_index): int((i + 1) * step_index)])[
+                      0:int(step_index)] 
         fft_mat.append(current_fft)
 
     if stereo: # Remise en forme des données dans le cas d'un son stéréo
@@ -61,13 +71,16 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False):
 
     return fft_mat, T
 
+
+
+
+
 def spectroPlotting(fft_mat, T, displayStretch, stereo, cmap):
     # Plotting le spectrogramme
     fft_mat = abs(fft_mat)
     if not stereo:
         fig, axs = plt.subplots()
         tr =transpose(fft_mat)  
-        tr = fft_mat
         cm = axs.imshow(tr, cmap=cmap)
         ymax = axs.get_ylim()[0]
         axs.set_ylim(0, ymax / displayStretch)  # Empirique
@@ -147,8 +160,4 @@ def reconstitution_son(fft_mat_output, frequence_enr, play=False, plot=False):
         plt.show()
 
     return reconstitution
-
-
-
-
 
