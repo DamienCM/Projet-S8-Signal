@@ -4,6 +4,8 @@ from numpy.fft import fft, ifft
 from numpy import abs, transpose, array, linspace, flip, shape, reshape, real, asarray, concatenate, exp,sum,arange
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
+import matplotlib
+
 
 def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
     """

@@ -16,7 +16,11 @@ Creation d'un environnement virtuel :
 
     >$ pip install -r requirements.txt
     * Sur Linux
+    >$ sudo apt-get install python3-venv
 
+    >$ sudo apt-get install python3-tk
+
+    >$ python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
 
 Le projet est constitué de deux sous dossiers et de plusieurs script et librairies : 
 * audio :  
