@@ -8,7 +8,7 @@ import sounddevice as sd
 
 
 
-def convertGrayscale(image): #
+def convertGrayscale(image): 
     """
     Convertit une image en nuance de gris 
 

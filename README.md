@@ -4,6 +4,19 @@
 Pour le rendu intermediaire ne pas prendre en compte le script main2.py 
 ---------------------
 
+# Initialisation du projet et installation des dependances
+Creation d'un environnement virtuel :
+1. Lancer un terminal
+2. Se placer dans le repertoire de travail avec la commande cd (ie le repertoire Projet)
+3. Lancer les commandes suivantes afin de creer un environement virtuel, d'installer  les dependances et de l'activer
+    * Sur windows
+    >$ python -m venv venv 
+
+    >$ . venv/Scripts/activate.ps1 
+
+    >$ pip install -r requirements.txt
+    * Sur Linux
+
 
 Le projet est constitué de deux sous dossiers et de plusieurs script et librairies : 
 * audio :  
