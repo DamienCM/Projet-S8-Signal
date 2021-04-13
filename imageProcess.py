@@ -7,6 +7,7 @@ import spectrogram
 import sounddevice as sd
 
 
+
 def convertGrayscale(image): #
     """
     Convertit une image en nuance de gris 
@@ -55,6 +56,10 @@ def doublement(img,simple=True):
 
 
 
+
+
+
+
 #traitement de signal sur l'image
 if __name__ == "__main__" :
     #Chargement de l'image
@@ -74,14 +79,14 @@ if __name__ == "__main__" :
     #On tourne l'image de 90 deg (parce qu'elle est transposee dans le spectro)
     img = np.rot90(img)
     #On la plot en tant que spectrogramme
-    fig,axs = spectrogram.spectro_plotting(img,519,displayStretch=1,stereo=False,cmap='Blues') #image de base dans le spectrogramme 
+    fig,axs = spectrogram.spectroPlotting(img,519,displayStretch=1,stereo=False,cmap='Blues') #image de base dans le spectrogramme 
     
     #On reconstitue un son a partir de l'inage
     son = spectrogram.reconstitution_son(img,1)
 
     #On calcule les FFT de ce son issu de l'image
-    matrix,T = spectrogram.matrix_computing(son,519,2,stereo=False,ponderation=False)
+    matrix,T = spectrogram.matrixComputing(son,519,2,stereo=False,ponderation=False)
     
     #On plot le resultat
-    fig,axs = spectrogram.spectro_plotting(matrix,T,1,False,'Blues') #image reconstituée dans le spectrogramme
+    fig,axs = spectrogram.spectroPlotting(matrix,T,1,False,'Blues') #image reconstituée dans le spectrogramme
     IPython.embed()

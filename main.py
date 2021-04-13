@@ -1,10 +1,10 @@
-import spectrogram 
+import spectrogram
+from numpy import transpose
+import matplotlib.pyplot as plt
 
-""" 
-TODO LIST
+""" TODO LIST
 
-TODO 1 : en general sur le projet il faudrait re-verifier si tout ce que 
-l'on a fonctionnne avec le stereo
+TODO 1 : en general sur le projet il faudrait re-verifier si tout ce que l'on a fonctionnne avec le stereo
 TODO 2 : Il faut maintenant voir pour ajouter une image au son cf ci dessous
 
       matrixComputing 				reconstitution_son
@@ -21,9 +21,9 @@ TODO 3 : en general sur le projet il faudrait set un venv pour rendre c'est bien
 """
 
 #Test simple comparaison entre le spectro glissant et le sautant
-TIME_STEP = 0.01
-son_original, freq = spectrogram.get_sound('audio/filsDuVoisin.wav')
-fft_mat_sautante,T_saut = spectrogram.matrix_computing(son_original,freq,TIME_STEP,False)
-fft_mat_glissante,T_gliss = spectrogram.matrix_computing(son_original,freq,TIME_STEP,False,ponderation=True)
-spectrogram.spectro_plotting(fft_mat_sautante, T_saut, 10, False, "Blues")
-spectrogram.spectro_plotting(fft_mat_glissante, T_gliss, 10, False, "Blues")
+time_step = 0.01
+son_original, freq = spectrogram.getSound('audio/filsDuVoisin.wav')
+fft_mat_sautante,T_saut = spectrogram.matrixComputing(son_original,freq,time_step,False)
+fft_mat_glissante,T_gliss = spectrogram.matrixComputing(son_original,freq,time_step,False,ponderation=True)
+spectrogram.spectroPlotting(fft_mat_sautante, T_saut, 10, False, "Blues")
+spectrogram.spectroPlotting(fft_mat_glissante, T_gliss, 10, False, "Blues")
