@@ -1,11 +1,14 @@
 import soundfile
 import sounddevice as sd
+import numpy as np
+from PIL import Image,ImageOps
 from numpy.fft import fft, ifft
 from numpy import abs, transpose, array, linspace, flip, shape, reshape, real, asarray, concatenate, exp,sum,arange
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
-import matplotlib
-
+# import matplotlib.image as mpimg
+import imageProcess
+import time 
 
 def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
     """
@@ -238,3 +241,44 @@ def reconstitution_son(fft_mat_output, frequence_enr, play=False, plot=False):
 
     return reconstitution
 
+def addition_image_son(image_path,fft_son,x_shift=0,y_shift=0,x_size=1,y_size=1):
+    """
+    Fonction permettant d'ajouter l'image à la matrice des fft du son
+    
+    Entree :
+    -image_path : string du chemin vers l'image
+    -fft_son : ndarray complexe de la fft notre son
+    -x_shift : coefficient floatant de decalage sur x de l'emplacement ou l'on va ajouter l'image dans la fft (-1; 1) --> 0 = centre
+    -y_shift : coefficient floatant de decalage sur y de l'emplacement ou l'on va ajouter l'image dans la fft (-1;1) --> 0 = centre
+    -x_size : place que prendra l'image sur x dans la fft (de base pleine echelle)
+    -y_size : place que prendra l'image sur y dans la fft (de base pleine echelle)
+
+    Sorties :
+    -fft_ret : nouvelle fft que l'on renvoie
+    """
+    #On transpose la matrice fft
+    fft_tr = transpose(fft_son)  #on laisse abs pour le moment pour tester avec des reels
+    fft_tr = 255 / np.max(fft_tr) * fft_tr
+    # charge l'image
+    img = Image.open(image_path)
+
+    #On resize l'image pour l'adapter à la fft et on la double
+    img = img.resize((np.shape(fft_son)[0],int(np.shape(fft_son)[1]/2)),resample=Image.BOX)
+    img = ImageOps.grayscale(img)
+    img_mat = np.array(img)
+    img_mat = imageProcess.doublement(img_mat)
+    somme = img_mat + fft_tr
+    somme = 255 / np.max(somme) * somme
+    fft_ret = transpose(somme)
+    return fft_ret
+
+if __name__ == '__main__':
+    time_step = 0.01
+    son_original, freq = getSound('audio/filsDuVoisin.wav',play=True)
+    fft_mat_sautante,T_saut = matrixComputing(son_original,freq,time_step,False)
+    somme = addition_image_son('images\JBH.png',fft_mat_sautante)
+    spectroPlotting(somme, T_saut, 1, False, "Blues")
+    son = reconstitution_son(somme,freq,play=True)
+    
+
+    time.sleep(10)

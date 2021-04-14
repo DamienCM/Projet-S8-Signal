@@ -1,7 +1,7 @@
 import spectrogram
 from numpy import transpose
 import matplotlib.pyplot as plt
-
+import time
 """ TODO LIST
 
 TODO 1 : en general sur le projet il faudrait re-verifier si tout ce que l'on a fonctionnne avec le stereo
@@ -24,6 +24,10 @@ TODO 3 : en general sur le projet il faudrait set un venv pour rendre c'est bien
 time_step = 0.01
 son_original, freq = spectrogram.getSound('audio/filsDuVoisin.wav')
 fft_mat_sautante,T_saut = spectrogram.matrixComputing(son_original,freq,time_step,False)
-fft_mat_glissante,T_gliss = spectrogram.matrixComputing(son_original,freq,time_step,False,ponderation=True)
-spectrogram.spectroPlotting(fft_mat_sautante, T_saut, 10, False, "Blues")
-spectrogram.spectroPlotting(fft_mat_glissante, T_gliss, 10, False, "Blues")
+reconstitution = spectrogram.reconstitution_son(fft_mat_sautante,freq,play=True)
+new_fft_mat_sautante,net_T_saut = spectrogram.matrixComputing(reconstitution,freq,time_step,False)
+spectrogram.spectroPlotting()
+time.sleep(5)
+# fft_mat_glissante,T_gliss = spectrogram.matrixComputing(son_original,freq,time_step,False,ponderation=True)
+# spectrogram.spectroPlotting(fft_mat_sautante, T_saut, 10, False, "Blues")
+# spectrogram.spectroPlotting(fft_mat_glissante, T_gliss, 10, False, "Blues")
