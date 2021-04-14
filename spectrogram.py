@@ -1,16 +1,15 @@
 import soundfile
 import sounddevice as sd
 import numpy as np
-from PIL import Image,ImageOps
+from PIL import Image, ImageOps
 from numpy.fft import fft, ifft
-from numpy import abs, transpose, array, linspace, flip, shape, reshape, real, asarray, concatenate, exp,sum,arange
+from numpy import abs, transpose, array, linspace, flip, shape, reshape, real, asarray, concatenate, exp, sum, arange
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
-# import matplotlib.image as mpimg
-import imageProcess
-import time 
+import time
 
-def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
+
+def get_sound(file, play=False, frequence_enregistrement=None, stereo=False):
     """
     Fonction de récupération du son
 
@@ -24,7 +23,7 @@ def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
     - son_array : un vecteur contenant le son
     - frequence_enr : la fréquence d'enregistrement
     """
-    if not stereo: #gestion mono/stereo
+    if not stereo:  # gestion mono/stereo
         sound = AudioSegment.from_wav(file)
         sound = sound.set_channels(1)
         sound.export('./audio/temp.wav', format='wav')
@@ -33,16 +32,16 @@ def getSound(file, play=False, frequence_enregistrement=None, stereo=False):
     else:
         son_array, frequence_enr = soundfile.read(file)
 
-    if play: # jouer le son
+    if play:  # jouer le son
         sd.play(son_array, frequence_enr)
 
-    if frequence_enregistrement is not None: # détermination de la fréquence d'enregistrement
+    if frequence_enregistrement is not None:  # détermination de la fréquence d'enregistrement
         frequence_enr = frequence_enregistrement
 
     return son_array, frequence_enr
 
 
-def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False, ponderation=False):
+def matrix_computing(son_array, frequence_enr, time_step, stereo, plot=False, ponderation=False):
     """
     Fonction permettant de calculer la matrice des fft successives de notre signal
     
@@ -59,7 +58,8 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False, pon
 
     TODO : Faire de meme avec le stereo et verifier
     """
-    def gaussian(t,N,sigma=4):
+
+    def gaussian(t, N, sigma=4):
         """
         fonction renvoyant la gausienne de ponderation
         entrees :
@@ -69,15 +69,14 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False, pon
         
         retour arrray de gaussienne de ponderation normalisee
         """
-        ret =  exp(-(t-N/2)**2/(N/sigma)**2)
-        return ret/sum(ret)
-    
-    
+        ret = exp(-(t - N / 2) ** 2 / (N / sigma) ** 2)
+        return ret / sum(ret)
+
     N = len(son_array)
     Te = 1 / frequence_enr
     T = Te * N
 
-    step_index = int(time_step * frequence_enr) # equivalent d'index (entier) du time_step (secondes)
+    step_index = int(time_step * frequence_enr)  # equivalent d'index (entier) du time_step (secondes)
 
     # Plotting the signal
     if plot:
@@ -86,33 +85,30 @@ def matrixComputing(son_array, frequence_enr, time_step, stereo, plot=False, pon
         plt.show()
 
     # Computing Matrix
-    fft_mat = [] #tableau qui va contenir l'ensemble des ffts
+    fft_mat = []  # tableau qui va contenir l'ensemble des ffts
     for i in range(int(N / step_index)):
-        
-        if ponderation : #Avec ponderation par la gaussienne
+
+        if ponderation:  # Avec ponderation par la gaussienne
             current_son = son_array[int(i * step_index): int((i + 1) * step_index)]
-            N=len(current_son)
-            g = gaussian(arange(1,N+1,1),N)
+            N = len(current_son)
+            g = gaussian(arange(1, N + 1, 1), N)
             current_son = current_son * g
-            current_fft=fft(current_son)
+            current_fft = fft(current_son)
 
-        else :  #Sans ponderation par la gaussienne
+        else:  # Sans ponderation par la gaussienne
             current_fft = fft(son_array[int(i * step_index): int((i + 1) * step_index)])[
-                      0:int(step_index)] 
+                          0:int(step_index)]
 
-        fft_mat.append(current_fft) #ajout de la nouvelle matrice au tableau actuel
+        fft_mat.append(current_fft)  # ajout de la nouvelle matrice au tableau actuel
 
-    if stereo: # Remise en forme des données dans le cas d'un son stéréo
+    if stereo:  # Remise en forme des données dans le cas d'un son stéréo
         s = shape(fft_mat)
         fft_mat = reshape(fft_mat, (s[-1], s[0], s[1]))
 
     return fft_mat, T
 
 
-
-
-
-def spectroPlotting(fft_mat, T, displayStretch=1, stereo=False, cmap='Blues'):
+def spectro_plotting(fft_mat, T, displayStretch=1, stereo=False, cmap='Blues'):
     """
     Fonction d'affichage de notre spectrogramme.
 
@@ -130,31 +126,31 @@ def spectroPlotting(fft_mat, T, displayStretch=1, stereo=False, cmap='Blues'):
     # Plotting le spectrogramme
     fft_mat = abs(fft_mat)
     if not stereo:
-        #creation de la figure
-        fig, axs = plt.subplots()
-        #On transpose la matrice pour l'afficher dans le bon sens
-        tr =transpose(fft_mat)  
-        #affichage et reglages des limites
-        cm = axs.imshow(tr, cmap=cmap)
-        ymax = axs.get_ylim()[0]
-        axs.set_ylim(0, ymax / displayStretch)  
-        axs.set_aspect('auto')  # Les pixels ne sont plus carrés
-        xmax, xmin = axs.get_xlim()
-        axs.set_xticks(linspace(xmin, xmax, 10))
-        axs.set_xticklabels(flip(linspace(0, T, 10).round(2)))
+        # creation de la figure
+        fig, axis = plt.subplots()
+        # On transpose la matrice pour l'afficher dans le bon sens
+        tr = transpose(fft_mat)
+        # affichage et reglages des limites
+        cm = axis.imshow(tr, cmap=cmap)
+        ymax = axis.get_ylim()[0]
+        axis.set_ylim(0, ymax / displayStretch)
+        axis.set_aspect('auto')  # Les pixels ne sont plus carrés
+        xmax, xmin = axis.get_xlim()
+        axis.set_xticks(linspace(xmin, xmax, 10))
+        axis.set_xticklabels(flip(linspace(0, T, 10).round(2)))
         cbar = fig.colorbar(cm)
         cbar.set_label('Amplitude [1]')
-        axs.set_xlabel('Temps [s]')
-        axs.set_ylabel('Fréquence [Hz]')
-        ymin, ymax = axs.get_ylim()
-        axs.set_yticks(linspace(ymin, ymax, 10))
-        axs.set_yticklabels((T * linspace(ymin, ymax, 10)).round(2))
+        axis.set_xlabel('Temps [s]')
+        axis.set_ylabel('Fréquence [Hz]')
+        ymin, ymax = axis.get_ylim()
+        axis.set_yticks(linspace(ymin, ymax, 10))
+        axis.set_yticklabels((T * linspace(ymin, ymax, 10)).round(2))
     else:
         fig, axis = plt.subplots(2, 1)
         for i, axs in enumerate(axis):
             cm = axs.imshow(transpose(fft_mat[i]), cmap=cmap)
             ymax = axs.get_ylim()[0]
-            axs.set_ylim(0, ymax / displayStretch)  
+            axs.set_ylim(0, ymax / displayStretch)
             axs.set_aspect('auto')  # Les pixels ne sont plus carré
             xmax, xmin = axs.get_xlim()
             axs.set_xticks(linspace(xmin, xmax, 10))
@@ -168,12 +164,11 @@ def spectroPlotting(fft_mat, T, displayStretch=1, stereo=False, cmap='Blues'):
             cbar.set_label('Amplitude [1]')
     plt.title('spectrogramme du son')
     plt.show()
-    return fig,axs
+    return fig, axis
 
 
 def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement=None, displayStretch=1, cmap='Blues',
                       stereo=False):
-
     """
     Fonction all in one pour dessiner le spectrogramme a partir d'un fichier son
     
@@ -189,17 +184,17 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
     -fft_mat : la matrices des fft successives
     -frequence_enregistrement : la frequence a utiliser avec la fft pour reconstituer le son
     """
-    #display stretch = coefficient de division de la hauteur max (frequence du graphique)
+    # display stretch = coefficient de division de la hauteur max (frequence du graphique)
     plt.rcParams["figure.figsize"] = (17, 10)
 
     # Récupération du son
-    son_array, frequence_enr = getSound(file, play, frequence_enregistrement, stereo)
+    son_array, frequence_enr = get_sound(file, play, frequence_enregistrement, stereo)
 
-    # Cacul de la matrice des FFT
-    fft_mat, T = matrixComputing(son_array, frequence_enr, time_step, stereo)
+    # Calcul de la matrice des FFT
+    fft_mat, T = matrix_computing(son_array, frequence_enr, time_step, stereo)
 
     # Dessin du spectrogramme
-    spectroPlotting(fft_mat,T, displayStretch, stereo, cmap)
+    spectro_plotting(fft_mat, T, displayStretch, stereo, cmap)
 
     return fft_mat, frequence_enr
 
@@ -209,7 +204,7 @@ def reconstitution_son(fft_mat_output, frequence_enr, play=False, plot=False):
     Fonction permettant de reconstituer un son a partir d'une matrice interpretee comme une matrice de fft successives.
 
     Entrée: 
-    -fft_mat_output : Matrice des fft sautantes (construite via matrixComputing)
+    -fft_mat_output : Matrice des fft sautantes (construite via matrix_computing)
     -frequence_enr : frequence de l'enregistrement audio a reconstruire
     -play=False : Boolean definissant si l'on veut jouer le son reconstruit ou non 
     -plot=False : Boolean definissant si l'on veut plot temporellement le son reconstruit
@@ -225,7 +220,7 @@ def reconstitution_son(fft_mat_output, frequence_enr, play=False, plot=False):
 
     # On applique la FFT inverse sur l'ensemble des pas de temps
     for i in range(len(fft_mat_output)):
-        reconstitution = concatenate([reconstitution, real(ifft(fft_mat_output[i]))]) # Concaténation des FFT inverses
+        reconstitution = concatenate([reconstitution, real(ifft(fft_mat_output[i]))])  # Concaténation des FFT inverses
 
     # On joue le son reconstitué
     if play:
@@ -241,7 +236,8 @@ def reconstitution_son(fft_mat_output, frequence_enr, play=False, plot=False):
 
     return reconstitution
 
-def addition_image_son(image_path,fft_son,x_shift=0,y_shift=0,x_size=1,y_size=1):
+
+def addition_image_son(image_path, fft_son, x_shift=0, y_shift=0, x_size=1, y_size=1):
     """
     Fonction permettant d'ajouter l'image à la matrice des fft du son
     
@@ -256,29 +252,56 @@ def addition_image_son(image_path,fft_son,x_shift=0,y_shift=0,x_size=1,y_size=1)
     Sorties :
     -fft_ret : nouvelle fft que l'on renvoie
     """
-    #On transpose la matrice fft
-    fft_tr = transpose(fft_son)  #on laisse abs pour le moment pour tester avec des reels
+    # On transpose la matrice fft
+    fft_tr = transpose(fft_son)  # on laisse abs pour le moment pour tester avec des reels
     fft_tr = 255 / np.max(fft_tr) * fft_tr
     # charge l'image
     img = Image.open(image_path)
 
-    #On resize l'image pour l'adapter à la fft et on la double
-    img = img.resize((np.shape(fft_son)[0],int(np.shape(fft_son)[1]/2)),resample=Image.BOX)
+    # On resize l'image pour l'adapter à la fft et on la double
+    img = img.resize((np.shape(fft_son)[0], int(np.shape(fft_son)[1] / 2)), resample=Image.BOX)
     img = ImageOps.grayscale(img)
     img_mat = np.array(img)
-    img_mat = imageProcess.doublement(img_mat)
+    img_mat = doublement(img_mat)
     somme = img_mat + fft_tr
     somme = 255 / np.max(somme) * somme
     fft_ret = transpose(somme)
     return fft_ret
 
+
+def doublement(img, simple=True):
+    """
+    Fonction permettant de doubler l'image grayscale en hauteur
+
+    Entree :
+    -image : array contenant l'image N x M x 1
+    -simple=True : Boolean précisant si l'on veut doubler simplement l'image (True) ou si l'on veut la doubler en inserant un pixel blanc au milieu (False)
+
+    Sortie :
+    -ret : image doublée 2N x M x 1
+    """
+    if simple:
+        return np.concatenate((np.flip(img, axis=0), img), axis=0)
+    else:
+        ret = np.concatenate((np.flip(img, axis=0), np.array([np.zeros_like(img[0])])), axis=0)
+        ret = np.concatenate((ret, img), axis=0)
+    return ret
+
+
+def save_file(son_array, frequence):
+
+    return
+
+
+
+
 if __name__ == '__main__':
+    plt.interactive(False)
     time_step = 0.01
-    son_original, freq = getSound('audio/filsDuVoisin.wav',play=True)
-    fft_mat_sautante,T_saut = matrixComputing(son_original,freq,time_step,False)
-    somme = addition_image_son('images\JBH.png',fft_mat_sautante)
-    spectroPlotting(somme, T_saut, 1, False, "Blues")
-    son = reconstitution_son(somme,freq,play=True)
-    
+    son_original, freq = get_sound('audio/filsDuVoisin.wav', play=True)
+    fft_mat_sautante, T_saut = matrix_computing(son_original, freq, time_step, False)
+    somme = addition_image_son('images/JBH.png', fft_mat_sautante)
+    spectro_plotting(somme, T_saut, 1, False, "Blues")
+    son = reconstitution_son(somme, freq, play=True)
 
     time.sleep(10)
