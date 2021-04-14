@@ -108,7 +108,7 @@ def matrix_computing(son_array, frequence_enr, time_step, stereo, plot=False, po
     return fft_mat, T
 
 
-def spectro_plotting(fft_mat, T, displayStretch=1, stereo=False, cmap='Blues'):
+def spectro_plotting(fft_mat, T, displayStretch=1, title ="Spectrogramme", stereo=False, cmap='Blues'):
     """
     Fonction d'affichage de notre spectrogramme.
 
@@ -162,7 +162,7 @@ def spectro_plotting(fft_mat, T, displayStretch=1, stereo=False, cmap='Blues'):
             axs.set_yticklabels((T * linspace(ymin, ymax, 10)).round(2))
             cbar = fig.colorbar(cm, ax=axs)
             cbar.set_label('Amplitude [1]')
-    plt.title('spectrogramme du son')
+    plt.title(title)
     plt.show()
     return fig, axis
 
@@ -237,7 +237,7 @@ def reconstitution_son(fft_mat_output, frequence_enr, play=False, plot=False):
     return reconstitution
 
 
-def addition_image_son(image_path, fft_son, x_shift=0, y_shift=0, x_size=1, y_size=1):
+def addition_image_son(image_path, fft_son, x_shift=0., y_shift=0., x_size=.7, y_size=1.):
     """
     Fonction permettant d'ajouter l'image à la matrice des fft du son
     
@@ -252,19 +252,31 @@ def addition_image_son(image_path, fft_son, x_shift=0, y_shift=0, x_size=1, y_si
     Sorties :
     -fft_ret : nouvelle fft que l'on renvoie
     """
-    # On transpose la matrice fft
+    # On transpose la matrice fft pour travailler en superposition avec le spectro
     fft_tr = transpose(fft_son)  # on laisse abs pour le moment pour tester avec des reels
-    fft_tr = 255 / np.max(fft_tr) * fft_tr
+
+    m, n = np.shape(fft_tr)  # dimensions de l'array fft_tr qui nous servent reshape notre image
     # charge l'image
     img = Image.open(image_path)
-
     # On resize l'image pour l'adapter à la fft et on la double
-    img = img.resize((np.shape(fft_son)[0], int(np.shape(fft_son)[1] / 2)), resample=Image.BOX)
+    img = img.resize((int(n*x_size), int(m / 2)), resample=Image.BOX)
     img = ImageOps.grayscale(img)
+    img = ImageOps.invert(img)
     img_mat = np.array(img)
+    h, l = np.shape(img_mat)  # dimensions de la matrice reconvertie
+    # test des conditions de validités
+    gauche = int(n / 2 + x_shift*n/2 - l / 2)
+    droite = n - l - gauche
+    if gauche < 0:
+        raise ValueError("Erreur : x_shift petit,  l'image est trop à gauche")
+    if droite < 0:
+        raise ValueError("Erreur : x_shift grand,  l'image est trop à droite")
     img_mat = doublement(img_mat)
+    droite_mat = np.zeros((m, droite))
+    gauche_mat = np.zeros((m, gauche))
+    img_mat = np.concatenate((gauche_mat, img_mat, droite_mat),axis=1)
+    img_mat = img_mat * np.max(fft_tr) / np.max(img_mat)
     somme = img_mat + fft_tr
-    somme = 255 / np.max(somme) * somme
     fft_ret = transpose(somme)
     return fft_ret
 
@@ -289,19 +301,23 @@ def doublement(img, simple=True):
 
 
 def save_file(son_array, frequence):
-
     return
-
-
 
 
 if __name__ == '__main__':
     plt.interactive(False)
     time_step = 0.01
-    son_original, freq = get_sound('audio/filsDuVoisin.wav', play=True)
+    #  son original
+    son_original, freq = get_sound('audio/filsDuVoisin.wav', play=False)
     fft_mat_sautante, T_saut = matrix_computing(son_original, freq, time_step, False)
-    somme = addition_image_son('images/JBH.png', fft_mat_sautante)
-    spectro_plotting(somme, T_saut, 1, False, "Blues")
-    son = reconstitution_son(somme, freq, play=True)
+    spectro_plotting(fft_mat_sautante, T_saut, 1, title="Spectrogramme du son original" , cmap="Blues")
 
-    time.sleep(10)
+    #  addition
+    somme = addition_image_son('images/JBH.png', fft_mat_sautante,x_size=.2, x_shift=.9)
+    spectro_plotting(somme, T_saut, 1, title="Spectrogramme du son original additionne avec l'image", cmap="Blues")
+
+    #  son recompose
+    son_recomp = reconstitution_son(somme, freq, play=True)
+    fft_mat_sautante, T_saut = matrix_computing(son_recomp, freq, time_step, False)
+    spectro_plotting(fft_mat_sautante, T_saut, 1, title="Spectrogramme du son recompose", cmap="Blues")
+    time.sleep(5)
