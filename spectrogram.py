@@ -237,7 +237,7 @@ def reconstitution_son(fft_mat_output, frequence_enr, play=False, plot=False):
     return reconstitution
 
 
-def addition_image_son(image_path, fft_son, x_scale=0., y_shift=0., y_scale=.7, y_size=1.):
+def addition_image_son(image_path, fft_son, amplitude=1, x_scale=0., y_shift=0., y_scale=.7, y_size=1.):
     """
     Fonction permettant d'ajouter l'image à la matrice des fft du son
     
@@ -324,7 +324,9 @@ def addition_image_son(image_path, fft_son, x_scale=0., y_shift=0., y_scale=.7, 
     img_mat = np.array(img)
 
     # On fait la somme emtre la matrice complexe des fft et la matrice de reels de l'image
-    img_mat = img_mat * np.max(fft_tr) / np.max(img_mat)
+    if amplitude > 1:
+        amplitude = 1
+    img_mat = img_mat * np.max(fft_tr) / np.max(img_mat) * amplitude
     somme = img_mat + fft_tr
 
     # On retourne la matrice de somme
@@ -345,13 +347,17 @@ if __name__ == '__main__':
     # spectro_plotting(fft_mat_sautante, T_saut, 1, title="Spectrogramme du son original", cmap="Blues")
 
     #  addition
-    x_size = .2
+    x_size = .5
     y_size = .5
-    x_shift = -1
-    y_shift = -10
-    somme = addition_image_son('images/JBH.png', fft_mat_sautante, y_scale=x_size, x_scale=x_shift, y_size=y_size,
-                               y_shift=y_shift)
-    spectro_plotting(somme, T_saut, 2, title=f"y_scale={x_size} y_size={y_size} x_shit={x_shift} y_shift={y_shift}",
+    x_shift = 2
+    y_shift = 0
+    amplitude = .2
+    somme = addition_image_son('images/gros_poulet.png', fft_mat_sautante, y_scale=x_size, x_scale=x_shift,
+                               y_size=y_size,
+                               y_shift=y_shift,
+                               amplitude=amplitude)
+    spectro_plotting(somme, T_saut, 2,
+                     title=f"y_scale={x_size} y_size={y_size} x_shit={x_shift} y_shift={y_shift} A={amplitude}",
                      cmap="Blues")
 
     #  son recompose
