@@ -240,7 +240,7 @@ def reconstitution_son(fft_mat_output, frequence_enr=44000, play=False, plot=Fal
         plt.savefig('plots/son_reconstitue.png')
         plt.show()
 
-    return reconstitution
+    return reconstitution/max(reconstitution) # /max(reconstitution) HYPER IMPORTANT
 
 
 def addition_image_fft(image_path, fft_son, amplitude=1., x_scale=.9, x_shift=0., y_scale=.2, y_shift=0.):
