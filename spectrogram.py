@@ -108,7 +108,7 @@ def matrix_computing(son_array, frequence_enr, time_step, stereo, plot=False, po
     return fft_mat, T
 
 
-def spectro_plotting(fft_mat, T, displayStretch=1, title ="Spectrogramme", stereo=False, cmap='Blues'):
+def spectro_plotting(fft_mat, T, displayStretch=1, title="Spectrogramme", stereo=False, cmap='Blues'):
     """
     Fonction d'affichage de notre spectrogramme.
 
@@ -194,7 +194,7 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
     fft_mat, T = matrix_computing(son_array, frequence_enr, time_step, stereo)
 
     # Dessin du spectrogramme
-    spectro_plotting(fft_mat, T, displayStretch, stereo, cmap)
+    spectro_plotting(fft_mat, T, displayStretch, stereo=stereo, cmap=cmap)
 
     return fft_mat, frequence_enr
 
@@ -237,67 +237,99 @@ def reconstitution_son(fft_mat_output, frequence_enr, play=False, plot=False):
     return reconstitution
 
 
-def addition_image_son(image_path, fft_son, x_shift=0., y_shift=0., x_size=.7, y_size=1.):
+def addition_image_son(image_path, fft_son, x_scale=0., y_shift=0., y_scale=.7, y_size=1.):
     """
     Fonction permettant d'ajouter l'image à la matrice des fft du son
     
     Entree :
     -image_path : string du chemin vers l'image
     -fft_son : ndarray complexe de la fft notre son
-    -x_shift : coefficient floatant de decalage sur x de l'emplacement ou l'on va ajouter l'image dans la fft (-1; 1) --> 0 = centre
+    -x_scale : coefficient floatant de decalage sur x de l'emplacement ou l'on va ajouter l'image dans la fft (-1; 1) --> 0 = centre
     -y_shift : coefficient floatant de decalage sur y de l'emplacement ou l'on va ajouter l'image dans la fft (-1;1) --> 0 = centre
-    -x_size : place que prendra l'image sur x dans la fft (de base pleine echelle)
+    -y_scale : place que prendra l'image sur x dans la fft (de base pleine echelle)
     -y_size : place que prendra l'image sur y dans la fft (de base pleine echelle)
 
     Sorties :
     -fft_ret : nouvelle fft que l'on renvoie
     """
-    # On transpose la matrice fft pour travailler en superposition avec le spectro
-    fft_tr = transpose(fft_son)  # on laisse abs pour le moment pour tester avec des reels
 
-    m, n = np.shape(fft_tr)  # dimensions de l'array fft_tr qui nous servent reshape notre image
-    # charge l'image
+    def doublement(img, simple=True):
+        """
+        Fonction permettant de doubler l'image grayscale en hauteur
+
+        Entree :
+        -image : array contenant l'image N x M x 1
+        -simple=True : Boolean précisant si l'on veut doubler simplement l'image (True) ou si l'on veut la doubler en inserant un pixel blanc au milieu (False)
+
+        Sortie :
+        -ret : image doublée 2N x M x 1
+        """
+        if simple:
+            return np.concatenate((np.flip(img, axis=0), img), axis=0)
+        else:
+            ret = np.concatenate((np.flip(img, axis=0), np.array([np.zeros_like(img[0])])), axis=0)
+            ret = np.concatenate((ret, img), axis=0)
+        return ret
+
+    # On transpose la matrice fft pour travailler en superposition avec le spectro
+    fft_tr = transpose(fft_son)
+
+    # charge l'image et la convertit en grayscale
     img = Image.open(image_path)
-    # On resize l'image pour l'adapter à la fft et on la double
-    img = img.resize((int(n*x_size), int(m / 2)), resample=Image.BOX)
     img = ImageOps.grayscale(img)
     img = ImageOps.invert(img)
-    img_mat = np.array(img)
-    h, l = np.shape(img_mat)  # dimensions de la matrice reconvertie
-    # test des conditions de validités
-    gauche = int(n / 2 + x_shift*n/2 - l / 2)
-    droite = n - l - gauche
-    if gauche < 0:
-        raise ValueError("Erreur : x_shift petit,  l'image est trop à gauche")
-    if droite < 0:
-        raise ValueError("Erreur : x_shift grand,  l'image est trop à droite")
+
+    n, m = img.size
+    img_mat = np.array(img)  # convertit l'image grayscale en array exploitable
+
+    # Pour x on scale et decale
+    try:
+        # scaling (on entoure a droite et a gauche de matrices de 0)
+        bord = np.zeros((m, int(1 / y_scale * n - n)))
+        img_mat = np.concatenate((bord, img_mat, bord), axis=1)
+
+        # decalage (on concatene avec une matrice de 0)
+        if x_scale > 0:
+            bord = np.zeros((m, int(n * x_scale)))
+            img_mat = np.concatenate((bord, img_mat), axis=1)
+        if x_scale < 0:
+            bord = np.zeros((m, int(n * abs(x_scale))))
+            img_mat = np.concatenate((img_mat, bord), axis=1)
+    except ValueError:
+        # En cas d'erreur lors de l'addition, on ne la fait pas
+        print("Erreur lors de x_scale ou x_shift on continue sans")
+
+    m, n = np.shape(img_mat)
+
+    # De meme pour y
+    try:
+        bord = np.zeros((int(1 / y_size * m - m), n))
+        img_mat = np.concatenate((bord, img_mat, bord), axis=0)
+        if y_shift > 0:
+            bord = np.zeros((int(m * y_shift), n))
+            img_mat = np.concatenate((img_mat, bord), axis=0)
+        if y_shift < 0:
+            bord = np.zeros((int(m * abs(y_shift)), n))
+            img_mat = np.concatenate((bord, img_mat), axis=0)
+    except ValueError:
+        print("Erreur lors de y_shift ou y_shift on continue sans")
+
+    # On double l'image pour ne pas oublier les frequences negatives
     img_mat = doublement(img_mat)
-    droite_mat = np.zeros((m, droite))
-    gauche_mat = np.zeros((m, gauche))
-    img_mat = np.concatenate((gauche_mat, img_mat, droite_mat),axis=1)
+
+    # On resize aux dimensions de la matrice des fft
+    img = Image.fromarray(img_mat)
+    n, m = np.shape(fft_tr)
+    img = img.resize((m, n), resample=Image.BOX)
+    img_mat = np.array(img)
+
+    # On fait la somme emtre la matrice complexe des fft et la matrice de reels de l'image
     img_mat = img_mat * np.max(fft_tr) / np.max(img_mat)
     somme = img_mat + fft_tr
+
+    # On retourne la matrice de somme
     fft_ret = transpose(somme)
     return fft_ret
-
-
-def doublement(img, simple=True):
-    """
-    Fonction permettant de doubler l'image grayscale en hauteur
-
-    Entree :
-    -image : array contenant l'image N x M x 1
-    -simple=True : Boolean précisant si l'on veut doubler simplement l'image (True) ou si l'on veut la doubler en inserant un pixel blanc au milieu (False)
-
-    Sortie :
-    -ret : image doublée 2N x M x 1
-    """
-    if simple:
-        return np.concatenate((np.flip(img, axis=0), img), axis=0)
-    else:
-        ret = np.concatenate((np.flip(img, axis=0), np.array([np.zeros_like(img[0])])), axis=0)
-        ret = np.concatenate((ret, img), axis=0)
-    return ret
 
 
 def save_file(son_array, frequence):
@@ -310,14 +342,20 @@ if __name__ == '__main__':
     #  son original
     son_original, freq = get_sound('audio/filsDuVoisin.wav', play=False)
     fft_mat_sautante, T_saut = matrix_computing(son_original, freq, time_step, False)
-    spectro_plotting(fft_mat_sautante, T_saut, 1, title="Spectrogramme du son original" , cmap="Blues")
+    # spectro_plotting(fft_mat_sautante, T_saut, 1, title="Spectrogramme du son original", cmap="Blues")
 
     #  addition
-    somme = addition_image_son('images/JBH.png', fft_mat_sautante,x_size=.2, x_shift=.9)
-    spectro_plotting(somme, T_saut, 1, title="Spectrogramme du son original additionne avec l'image", cmap="Blues")
+    x_size = .2
+    y_size = .5
+    x_shift = -1
+    y_shift = -10
+    somme = addition_image_son('images/JBH.png', fft_mat_sautante, y_scale=x_size, x_scale=x_shift, y_size=y_size,
+                               y_shift=y_shift)
+    spectro_plotting(somme, T_saut, 2, title=f"y_scale={x_size} y_size={y_size} x_shit={x_shift} y_shift={y_shift}",
+                     cmap="Blues")
 
     #  son recompose
     son_recomp = reconstitution_son(somme, freq, play=True)
-    fft_mat_sautante, T_saut = matrix_computing(son_recomp, freq, time_step, False)
+    fft_mat_sautante, T_saut = matrix_computing(son_recomp, freq, time_step, stereo=False)
     spectro_plotting(fft_mat_sautante, T_saut, 1, title="Spectrogramme du son recompose", cmap="Blues")
     time.sleep(5)
