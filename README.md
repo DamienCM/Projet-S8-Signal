@@ -72,7 +72,7 @@ Le projet est constitué de deux sous dossiers et de plusieurs script et librair
         * frequence_enregistrement : float/int (optional), si l'on veut preciser une frequence de l'enregistrement
         * stereo : boolean (optional), permet de preciser si le son est en stereo ou non
 
-    * matrix_computing(son_array, frequence_enr, time_step, stereo)
+    * matrix_computing_sautant(son_array, frequence_enr, time_step, stereo)
 
       Fonction permettant d'obtenir les transformée successives de l'enregistrement ainsi que la duree totale de
       l'enregistrement
