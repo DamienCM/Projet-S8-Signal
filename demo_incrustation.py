@@ -6,7 +6,7 @@ son_original, freq = get_sound('audio/filsDuVoisin.wav', play=False)
 
 # Calcul des matrices sautantes
 fft_mat_sautante, T_saut = matrix_computing(son_original, freq, time_step, False)
-spectro_plotting(fft_mat_sautante, T_saut, 1, title="Spectrogramme du son original", cmap="Blues")
+spectro_plotting(fft_mat_sautante, freq, 1, title="Spectrogramme du son original", cmap="Blues")
 
 #  On ajoute notre image à la fft
 somme = addition_image_fft('images/gros_poulet.png', fft_mat_sautante, x_scale=.5, x_shift=-1, y_scale=.5,

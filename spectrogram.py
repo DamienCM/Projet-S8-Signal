@@ -106,6 +106,10 @@ def matrix_computing(son_array, frequence_enr, time_step, stereo=False, plot=Fal
         fft_mat = reshape(fft_mat, (s[-1], s[0], s[1]))
 
     #  Dans le cas ou l'on veut travailler en RGB
+
+    # On normalise les amplitudes
+    fft_mat = 255 * np.array(fft_mat) / np.max(fft_mat)
+
     if color_sep:
         pas = int(len(fft_mat) / 3)
         fft_mat = (fft_mat[0:pas], fft_mat[pas:2 * pas], fft_mat[2 * pas:3 * pas])
@@ -113,7 +117,7 @@ def matrix_computing(son_array, frequence_enr, time_step, stereo=False, plot=Fal
     return fft_mat, T
 
 
-def spectro_plotting(fft_mat, T=1, displayStretch=1, title="Spectrogramme", stereo=False, cmap='Blues'):
+def spectro_plotting(fft_mat, freq=1, displayStretch=2, title="Spectrogramme", cmap='Blues'):
     """
     Fonction d'affichage de notre spectrogramme.
 
@@ -121,53 +125,41 @@ def spectro_plotting(fft_mat, T=1, displayStretch=1, title="Spectrogramme", ster
     -fft_mat : array des fft successives de notre son
     -T : temps total de l'enregistrement
     -displaystretch=1  argument permettant de regler la hauteur de l'affichage (augmenter pour zommer sur y)
-    -stereo permet de preciser si notre signal est en stereo ou non
     -cmap='Blues' : color map matplolib utilisee pour la representation, parce que le Blues c'est cool comme musique
 
     Sortie 
     fig : figure matplotlib
     axs : ax matplotlib
     """
+
     print('Plotting spectrogram : ...')
     # Plotting le spectrogramme
     fft_mat = abs(fft_mat)
-    if not stereo:
-        # creation de la figure
-        fig, axis = plt.subplots()
-        # On transpose la matrice pour l'afficher dans le bon sens
-        tr = transpose(fft_mat)
-        # affichage et reglages des limites
-        cm = axis.imshow(tr, cmap=cmap)
-        ymax = axis.get_ylim()[0]
-        axis.set_ylim(0, ymax / displayStretch)
-        axis.set_aspect('auto')  # Les pixels ne sont plus carrés
-        xmax, xmin = axis.get_xlim()
-        axis.set_xticks(linspace(xmin, xmax, 10))
-        axis.set_xticklabels(flip(linspace(0, T, 10).round(2)))
-        cbar = fig.colorbar(cm)
-        cbar.set_label('Amplitude [1]')
-        axis.set_xlabel('Temps [s]')
-        axis.set_ylabel('Fréquence [Hz]')
-        ymin, ymax = axis.get_ylim()
-        axis.set_yticks(linspace(ymin, ymax, 10))
-        axis.set_yticklabels((T * linspace(ymin, ymax, 10)).round(2))
-    else:
-        fig, axis = plt.subplots(2, 1)
-        for i, axs in enumerate(axis):
-            cm = axs.imshow(transpose(fft_mat[i]), cmap=cmap)
-            ymax = axs.get_ylim()[0]
-            axs.set_ylim(0, ymax / displayStretch)
-            axs.set_aspect('auto')  # Les pixels ne sont plus carré
-            xmax, xmin = axs.get_xlim()
-            axs.set_xticks(linspace(xmin, xmax, 10))
-            axs.set_xticklabels(flip(linspace(0, T, 10).round(2)))
-            axs.set_xlabel('Temps [s]')
-            axs.set_ylabel('Fréquence [Hz]')
-            ymin, ymax = axs.get_ylim()
-            axs.set_yticks(linspace(ymin, ymax, 10))
-            axs.set_yticklabels((T * linspace(ymin, ymax, 10)).round(2))
-            cbar = fig.colorbar(cm, ax=axs)
-            cbar.set_label('Amplitude [1]')
+    # creation de la figure
+    fig, axis = plt.subplots()
+    # On transpose la matrice pour l'afficher dans le bon sens
+    tr = transpose(fft_mat)
+    # affichage et reglages des limites
+    cm = axis.imshow(tr, cmap=cmap)
+
+    axis.set_aspect('auto')  # Les pixels ne sont plus carrés
+    xmax, xmin = axis.get_xlim()
+    axis.set_xticks(linspace(xmin, xmax, 6))
+    axis.set_xticklabels((linspace(1 / freq * np.size(fft_mat), 0, 6)).round(1))
+
+    ymax = axis.get_ylim()[0]
+    axis.set_ylim(0, ymax / displayStretch)
+
+    ymin, ymax = axis.get_ylim()
+    axis.set_yticks(linspace(ymin, ymax, 6))
+    xtl = [f"{i}k" for i in np.int32(freq/1000 * linspace(0, 1 / displayStretch, 6))]
+    axis.set_yticklabels(xtl)
+
+    cbar = fig.colorbar(cm)
+    cbar.set_label('Amplitude [1]')
+    axis.set_xlabel('Temps [s]')
+    axis.set_ylabel('Fréquence [Hz]')
+
     plt.title(title)
     plt.show()
     print('Plotting spectrogram : Done')
@@ -240,7 +232,7 @@ def reconstitution_son(fft_mat_output, frequence_enr=44000, play=False, plot=Fal
         plt.savefig('plots/son_reconstitue.png')
         plt.show()
 
-    return reconstitution/max(reconstitution) # /max(reconstitution) HYPER IMPORTANT
+    return reconstitution / max(reconstitution)  # /max(reconstitution) HYPER IMPORTANT
 
 
 def addition_image_fft(image_path, fft_son, amplitude=1., x_scale=.9, x_shift=0., y_scale=.2, y_shift=0.):
@@ -424,7 +416,7 @@ if __name__ == '__main__':
     #  son recompose
     son_recomp = reconstitution_son(somme, freq, play=True)
 
-    save_file(son_recomp,freq,'audio/son_dechirant.wav')
+    save_file(son_recomp, freq, 'audio/son_dechirant.wav')
     son_original, freq = get_sound('audio/son_dechirant.wav', play=False)
     fft_mat_sautante, T_saut = matrix_computing(son_original, freq, time_step, False)
     spectro_plotting(fft_mat_sautante, displayStretch=2, title="Spectrogramme du enregistre", cmap="Blues")
