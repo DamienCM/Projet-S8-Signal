@@ -2,8 +2,8 @@ from spectrogram import *
 
 # ----------- INCRUSTER L'IMAGE ---------------
 #  definition du pas de temps et chargement de notre son
-time_step = 0.02
-son_original, freq = get_sound('audio/videoplayback.wav', play=True)
+time_step = 0.01
+son_original, freq = get_sound('audio/filsDuVoisin.wav', play=True)
 
 # On calcule la fft que l'on divise en 3 parties (avec l'argument color_sep)
 fft_sans_image = matrix_computing_sautant(son_original, freq, time_step, color_sep=True)

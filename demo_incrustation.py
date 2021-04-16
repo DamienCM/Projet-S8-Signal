@@ -2,7 +2,7 @@ from spectrogram import *
 
 time_step = 0.01
 # On charge notre son
-son_original, freq = get_sound('audio/filsDuVoisin.wav', play=False)
+son_original, freq = get_sound('audio/filsDuVoisin.wav', play=True)
 
 # Calcul des matrices sautantes
 fft_mat_sautante = matrix_computing_sautant(son_original, freq, time_step, False)
