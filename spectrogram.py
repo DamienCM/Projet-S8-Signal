@@ -114,7 +114,7 @@ def matrix_computing(son_array, frequence_enr, time_step, stereo=False, plot=Fal
         pas = int(len(fft_mat) / 3)
         fft_mat = (fft_mat[0:pas], fft_mat[pas:2 * pas], fft_mat[2 * pas:3 * pas])
 
-    return fft_mat, T
+    return fft_mat
 
 
 def spectro_plotting(fft_mat, freq=1, displayStretch=2, title="Spectrogramme", cmap='Blues'):
@@ -190,7 +190,7 @@ def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement
     son_array, frequence_enr = get_sound(file, play, frequence_enregistrement, stereo)
 
     # Calcul de la matrice des FFT
-    fft_mat, T = matrix_computing(son_array, frequence_enr, time_step, stereo)
+    fft_mat= matrix_computing(son_array, frequence_enr, time_step, stereo)
 
     # Dessin du spectrogramme
     spectro_plotting(fft_mat, T, displayStretch, stereo=stereo, cmap=cmap)
@@ -396,7 +396,7 @@ if __name__ == '__main__':
     time_step = 0.01
     #  son original
     son_original, freq = get_sound('audio/filsDuVoisin.wav', play=False)
-    fft_mat_sautante, T_saut = matrix_computing(son_original, freq, time_step, False)
+    fft_mat_sautante = matrix_computing(son_original, freq, time_step, False)
     # spectro_plotting(fft_mat_sautante, T_saut, 1, title="Spectrogramme du son original", cmap="Blues")
 
     #  addition
@@ -418,6 +418,6 @@ if __name__ == '__main__':
 
     save_file(son_recomp, freq, 'audio/son_dechirant.wav')
     son_original, freq = get_sound('audio/son_dechirant.wav', play=False)
-    fft_mat_sautante, T_saut = matrix_computing(son_original, freq, time_step, False)
+    fft_mat_sautante = matrix_computing(son_original, freq, time_step, False)
     spectro_plotting(fft_mat_sautante, displayStretch=2, title="Spectrogramme du enregistre", cmap="Blues")
     time.sleep(5)

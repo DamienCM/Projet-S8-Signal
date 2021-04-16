@@ -6,7 +6,7 @@ time_step = 0.02
 son_original, freq = get_sound('audio/filsDuVoisin.wav', play=False)
 
 # On calcule la fft que l'on divise en 3 parties (avec l'argument color_sep)
-fft_sans_image, _ = matrix_computing(son_original, freq, time_step, color_sep=True)
+fft_sans_image = matrix_computing(son_original, freq, time_step, color_sep=True)
 
 # On ajoute de manière decomposée notre image sur chaque partie du signal
 ffts_avec_image = addition_image_fft_colored('images/gros_poulet.png', fft_sans_image)
@@ -30,7 +30,7 @@ save_file(son_recomp, freq, save_path)
 son_verif, freq = get_sound(save_path)
 
 #  On calcule la FFT du son dans lequel on a caché l'image
-ffts_verif, freq = matrix_computing(son_verif, freq, time_step, color_sep=True)
+ffts_verif= matrix_computing(son_verif, freq, time_step, color_sep=True)
 
 #  On en extrait l'image
 fft_verif, image_verif = re_assemblage_rgb(ffts_verif)
