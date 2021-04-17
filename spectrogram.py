@@ -11,11 +11,11 @@ from tqdm import tqdm
 
 def gaussian(t, n, sigma=4):
     """
-    fonction renvoyant la gausienne de ponderation
+    fonction renvoyant la gausienne de ponderation pour faire des spectrogramme plus jolis
     entrees :
     t : temps array
-    N : temps max
-    sigma=4 : ecart type (ou simili)
+    n : temps max
+    sigma=4 : écart type (ou simili)
 
     retour arrray de gaussienne de ponderation normalisee
     """
@@ -25,13 +25,12 @@ def gaussian(t, n, sigma=4):
 
 def get_sound(file, play=False, frequence_enregistrement=None):
     """
-    Fonction de récupération du son
+    Fonction de récupération du son depuis un fichier .wav
 
     Entrées:
     - file : string de l'adresse du fichier audio 
     - play=False: booléen définissant si le son est joué
     - frequence_enregistrement=None : fréquence d'enregistrement (a preciser si l'on ne veut pas utiliser celle de base)
-    - stereo=False : booléen définissant si le son est en mono ou stéréo (de base en Mono)
 
     Sorties:
     - son_array : un vecteur contenant le son
@@ -55,24 +54,21 @@ def get_sound(file, play=False, frequence_enregistrement=None):
 
 def matrix_computing_sautant(son_array, frequence_enr, time_step, plot=False, ponderation=False, color_sep=False):
     """
-    Fonction permettant de calculer la matrice des fft successives de notre signal
+    Fonction permettant de calculer la matrice des fft successives sautantes de notre signal
     
     Entrees :
     -son_array : le son sous forme d'array
     -frequence_enr : la fréquence d'enregistrement du signal
     -time_step : la période de temps sur laquelle on effectue les fft
-    -plot (facultatif) boolean précisant si l'on veut plot le signal orignal
-    -ponderation (falcutatif de base à False) permet de preciser si l'on veut ponderer le signal par une gaussienne
+    -plot=False (facultatif) boolean précisant si l'on veut plot le signal orignal (deconseillé)
+    -ponderation=False (falcutatif) permet de preciser si l'on veut ponderer le signal par une gaussienne
 
     Sorties :
     -fft_mat la matrice des fft successives
-    -T le temps total du son
-
-    TODO : Faire de meme avec le stereo et verifier
     """
     N = len(son_array)
     Te = 1 / frequence_enr
-    T = Te * N
+    T = Te * N  # Temps total de l'enregistrement 
 
     step_index = int(time_step * frequence_enr)  # equivalent d'index (entier) du time_step (secondes)
 
@@ -112,6 +108,18 @@ def matrix_computing_sautant(son_array, frequence_enr, time_step, plot=False, po
 
 
 def matrix_computing_glissant(son_array, frequence_enr, time_step, ponderation=False):
+    """
+    Fonction permettant de calculer la matrice des fft successives glissante de notre signal
+    
+    Entrees :
+    -son_array : le son sous forme d'array
+    -frequence_enr : la fréquence d'enregistrement du signal
+    -time_step : la période de temps sur laquelle on effectue les fft
+    -ponderation=False (falcutatif) permet de preciser si l'on veut ponderer le signal par une gaussienne
+
+    Sorties :
+    -fft_mat la matrice des fft successives
+    """
     N = len(son_array)
     step_index = int(time_step * frequence_enr)  # equivalent d'index (entier) du time_step (secondes)
 
@@ -144,7 +152,6 @@ def spectro_plotting(fft_mat, freq=1, displayStretch=2, title="Spectrogramme", c
     fig : figure matplotlib
     axs : ax matplotlib
     """
-    "réglage matpotlib figure"
     print('Plotting spectrogram : ...')
     # Plotting le spectrogramme
     fft_mat = abs(fft_mat)
@@ -174,40 +181,9 @@ def spectro_plotting(fft_mat, freq=1, displayStretch=2, title="Spectrogramme", c
     axis.set_ylabel('Fréquence [Hz]')
 
     plt.title(title)
-    plt.show()
     print('Plotting spectrogram : Done')
     return fig, axis
 
-
-def spectrogramme_wav(file, time_step=0.05, play=False, frequence_enregistrement=None, displayStretch=1, cmap='Blues'):
-    """
-    Fonction all in one pour dessiner le spectrogramme a partir d'un fichier son
-    
-    Entrees :
-    -file : string path vers le fichier son
-    -time_step=0.05 : pas de temps avec lequel on effectue les ffts
-    -play=False : permet de jouer le son si True
-    -frequence_enregistrement=None : permet de preciser une frequence pour l'enregistrement si ce n'est pas celle de base
-    -displayStrech=1 : permet de compresser l'affichage sur y (ie zoomer)
-    -cmap="Blues" : colormap utilisée pour le spectrogramme
-    
-    Sorties :
-    -fft_mat : la matrices des fft successives
-    -frequence_enregistrement : la frequence a utiliser avec la fft pour reconstituer le son
-    """
-    # display stretch = coefficient de division de la hauteur max (frequence du graphique)
-    plt.rcParams["figure.figsize"] = (17, 10)
-
-    # Récupération du son
-    son_array, frequence_enr = get_sound(file, play, frequence_enregistrement)
-
-    # Calcul de la matrice des FFT
-    fft_mat = matrix_computing_sautant(son_array, frequence_enr, time_step)
-
-    # Dessin du spectrogramme
-    spectro_plotting(fft_mat, frequence_enr, displayStretch, cmap=cmap)
-
-    return fft_mat, frequence_enr
 
 
 def reconstitution_son(fft_mat_output, frequence_enr=44000, play=False, plot=False):

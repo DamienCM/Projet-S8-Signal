@@ -1,11 +1,11 @@
 from spectrogram import *
 
-time_step = 0.01
+time_step = 0.02
 # On charge notre son
 son_original, freq = get_sound('audio/filsDuVoisin.wav', play=True)
 
 # Calcul des matrices sautantes
-fft_mat_sautante = matrix_computing_sautant(son_original, freq, time_step, False)
+fft_mat_sautante = matrix_computing_sautant(son_original, freq, time_step, ponderation=False)
 spectro_plotting(fft_mat_sautante, freq, title="Spectrogramme du son original", cmap="Blues")
 
 #  On ajoute notre image à la fft
