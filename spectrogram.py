@@ -22,6 +22,36 @@ def gaussian(t, n, sigma=4):
     ret = exp(-(t - n / 2) ** 2 / (n / sigma) ** 2)
     return ret / sum(ret)
 
+def bartlett(n):
+    """
+    fonction renvoyant la bartlett de ponderation pour faire des spectrogramme plus jolis
+    entrees :
+    n : temps max
+
+    retour arrray de bartlett de ponderation normalisee
+    """
+    L = []
+    for i in range(n):
+        if i<n/2:
+            L.append(2*(i)/n)
+        else :
+            L.append(2*(n-i)/n)
+    ret = np.array(L)
+    return ret / sum(ret)
+
+def hann(n):
+    """
+    fonction renvoyant la hann de ponderation pour faire des spectrogramme plus jolis
+    entrees :
+    n : temps max
+
+    retour arrray de hann de ponderation normalisee
+    """
+
+    ret = np.linspace(0,n,n)
+    ret = np.ones_like(ret)*.5 -.5*np.cos(2*np.pi*ret/n)
+    return ret / sum(ret)
+
 
 def get_sound(file, play=False, frequence_enregistrement=None):
     """
@@ -52,7 +82,7 @@ def get_sound(file, play=False, frequence_enregistrement=None):
     return son_array, frequence_enr
 
 
-def matrix_computing_sautant(son_array, frequence_enr, time_step, plot=False, ponderation=False, color_sep=False):
+def matrix_computing_sautant(son_array, frequence_enr, time_step, plot=False, ponderation=False, color_sep=False, ponderation_type='gaussian'):
     """
     Fonction permettant de calculer la matrice des fft successives sautantes de notre signal
     
@@ -66,6 +96,9 @@ def matrix_computing_sautant(son_array, frequence_enr, time_step, plot=False, po
     Sorties :
     -fft_mat la matrice des fft successives
     """
+    ponderation_set = {"gaussian","bartlett",'hann'}
+
+
     N = len(son_array)
     Te = 1 / frequence_enr
     T = Te * N  # Temps total de l'enregistrement 
@@ -84,9 +117,16 @@ def matrix_computing_sautant(son_array, frequence_enr, time_step, plot=False, po
     for i in tqdm(range(int(N / step_index))):
 
         if ponderation:  # Avec ponderation par la gaussienne
+            if ponderation_type not in ponderation_set :
+                raise ValueError(f"Type de ponderation inconnue {ponderation_type}")
             current_son = son_array[int(i * step_index): int((i + 1) * step_index)]
             N = len(current_son)
-            g = gaussian(arange(1, N + 1, 1), N)
+            if ponderation_type =='gaussian':
+                g = gaussian(arange(1, N + 1, 1), N)
+            if ponderation_type == 'bartlett':
+                g = bartlett(N)
+            if ponderation_type == 'hann':
+                g=hann(N)
             current_son = current_son * g
             current_fft = fft(current_son)
 
@@ -182,6 +222,7 @@ def spectro_plotting(fft_mat, freq=1, displayStretch=2, title="Spectrogramme", c
 
     plt.title(title)
     print('Plotting spectrogram : Done')
+    plt.show()
     return fig, axis
 
 

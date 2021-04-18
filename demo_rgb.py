@@ -1,9 +1,8 @@
 from spectrogram import *
-
 # ----------- INCRUSTER L'IMAGE ---------------
 #  definition du pas de temps et chargement de notre son
-time_step = 0.01
-son_original, freq = get_sound('audio/filsDuVoisin.wav', play=True)
+time_step = 0.013
+son_original, freq = get_sound('audio/filsDuVoisin.wav', play=False)
 
 # On calcule la fft que l'on divise en 3 parties (avec l'argument color_sep)
 fft_sans_image = matrix_computing_sautant(son_original, freq, time_step, color_sep=True)
@@ -15,7 +14,7 @@ ffts_avec_image = addition_image_fft_colored('images/gros_poulet.png', fft_sans_
 fft_avec_image, image_originale = re_assemblage_rgb(ffts_avec_image)
 
 # On recompose notre signal sous forme de son a partir de la FFT avec l'image
-son_recomp = reconstitution_son(fft_avec_image, freq, play=True)
+son_recomp = reconstitution_son(fft_avec_image, freq, play=False)
 
 save_path = 'audio/son_qui_dechire_rgb.wav'
 
@@ -31,18 +30,15 @@ son_verif, freq = get_sound(save_path)
 
 #  On calcule la FFT du son dans lequel on a caché l'image
 ffts_verif= matrix_computing_sautant(son_verif, freq, time_step, color_sep=True)
-#fft_glissante_verif = matrix_computing_glissant(son_verif, freq, time_step)
 
 #  On en extrait l'image
 fft_verif, image_verif = re_assemblage_rgb(ffts_verif)
 
 # On plot et affiche tout ca
-#spectro_plotting(fft_glissante_verif,freq,title="Spectrogramme du son contenant l'image")
-
+spectro_plotting(fft_verif,freq,title="")
+plt.title("image decodée")
 plt.imshow(np.array(image_verif))
-plt.title("Image recomposée")
+
 plt.show()
-plt.imshow(np.array(image_originale))
-plt.title("Image originale encodée dans la FFT puis décodée")
-plt.show()
+
 # ----------------------------------------
