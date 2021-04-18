@@ -1,0 +1,25 @@
+% This file was created by tikzplotlib v0.9.8.
+\begin{tikzpicture}
+
+\begin{axis}[
+height=0.4\linewidth,
+tick align=outside,
+tick pos=left,
+title={Image recomposée},
+width=.8\linewidth,
+x grid style={white!69.0196078431373!black},
+xmin=-0.5, xmax=276.5,
+xtick style={color=black},
+xtick={-50,0,50,100,150,200,250,300},
+xticklabels={\ensuremath{-}50,0,50,100,150,200,250,300},
+y dir=reverse,
+y grid style={white!69.0196078431373!black},
+ymin=-0.5, ymax=131.5,
+ytick style={color=black},
+ytick={-20,0,20,40,60,80,100,120,140},
+yticklabels={\ensuremath{-}20,0,20,40,60,80,100,120,140}
+]
+\addplot graphics [includegraphics cmd=\pgfimage,xmin=-0.5, xmax=276.5, ymin=131.5, ymax=-0.5] {rgb6-001.png};
+\end{axis}
+
+\end{tikzpicture}
