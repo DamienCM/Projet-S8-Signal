@@ -1,13 +1,11 @@
 # Projet
 
 Mini Projet de Signal S8 sur la dissimulation d'images dans un son au travers de son spectrogramme
----------------------
-Pour le rendu intermediaire ne pas prendre en compte le script main2.py
----------------------
 
-# Initialisation du projet et installation des dependances
+---------------------
+## Initialisation du projet et installation des dépendances
 
-Creation d'un environnement virtuel :
+Création d'un environnement virtuel :
 
 1. Lancer un terminal (powershell sur windows)
 2. Se placer dans le repertoire de travail avec la commande cd (ie le repertoire Projet)
@@ -18,98 +16,64 @@ Creation d'un environnement virtuel :
    > $ . venv/Scripts/activate.ps1
 
    > $ pip install -r requirements.txt
-    * Sur Linux
+    * Sur Ubuntu et systèmes Linux basés sur Ubuntu
    > $ sudo apt-get install python3-venv
 
    > $ sudo apt-get install python3-tk
 
    > $ python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
 
-Le projet est constitué de deux sous dossiers et de plusieurs script et librairies :
+## Constitution du projet
+
+Le projet est constitué de trois sous dossiers et de plusieurs scripts et librairies :
 
 * audio :  
-  Ce dossier contient plusieurs fichiers audio permettant de tester nos scripts
+  Ce dossier contient plusieurs fichiers audio permettant de tester nos scripts.
 
-* images  
-  Ce dossier permet de tester nos scripts avec de multiples images
+* images :
+  Ce dossier contient les images de travail à cacher dans le fichier audio et les images intermédiaires générées par le script.
+
+* figures :
+  Ce dossier contient les figures générées pour le rapport.
 
 * spectrogram.py
 
-  Il s'agit de la librairie principale du projet dans laquelle sont repertoriées la majorité des fonctions que nous
-  utiliserons, elle est articulée autour d'une fonction principale : **spectrogram_wav()**, de plusieurs fonctions
-  annexes qui en sont la décomposition ainsi que de **reconstitution_son**
+  Il s'agit de la librairie principale du projet dans laquelle sont repertoriées la majorité des fonctions que nous utiliserons.
 
-    * spectrogramme_wav(file, time_step=0.05, play=False frequence_enregistrement=None, displayStretch=10, cmap='Blues'
-      stereo=False)
-
-      Fonction permettant d'afficher le spectrogramme d'un son **.wav** dans un graph
-
-      Retour :
-        * fft_mat : ndarray, contenant le spectrogramme sous forme matricielle
-        * frequence_enr : float/int, frequence de l'enregistrement du son
-
-      Arguments :
-        * file : string, emplacement du fichier sonore
-        * time_step : float, temps avec lequel on effectue les transformées de Fourier sautantes
-        * play : boolean (optional), permet de jouer ou non le son dans les hauts parleurs
-        * frequence_enregistrement : float/int (optional), permet de preciser la frequence de l'enregistement si on
-          veut qu'elle differe de celle originale
-        * displayStretch : float (optionnal) permet de compresser plus ou moins l'affichage vertical du graph
-        * cmap : string (optional), permet de preciser la colormap que l'on souhaite utiliser pour le graphique
-        * **stereo** : boolean, permettant de preciser si le son est stereo ou non
-
-    * get_sound(file, play=False, frequence_enregistrement=None, stereo=False)
-
-      Fonction permettant d'obtenir la matrice représentative d'un fichier son
-
-      Retour :
-        * son_array : ndarray, matrice représentative du son audio
-        * frequence_enr : float, fréquence d'enregistrement
-
-      Arguments :
-        * file : string, emplacement du fichier à processer
-        * play : boolean (optional), permet de jouer (sur les hauts parleurs) ou non le son
-        * frequence_enregistrement : float/int (optional), si l'on veut preciser une frequence de l'enregistrement
-        * stereo : boolean (optional), permet de preciser si le son est en stereo ou non
-
-    * matrix_computing_sautant(son_array, frequence_enr, time_step, stereo)
-
-      Fonction permettant d'obtenir les transformée successives de l'enregistrement ainsi que la duree totale de
-      l'enregistrement
-
-      Retour :
-        * fft_mat : ndarray, matrice de la transformée de Fourier
-        * T : float, durée totale de l'enregistrement
-
-      Arguments :
-        * son_array : ndarray
-        * frequence_enr : float, precise la frequence de l'enregistrement
-        * time_step : float, precise la durée sur laquelle on effectue les transformées de Fourier
-        * stereo : boolean, precise la nature du son present dans la matrice, mono ou stereo
-
-    * spectro_plotting(fft_mat, T, displayStretch, stereo, cmap)
-
-      Fonction permettant d'afficher le spectrogramme d'une matrice déjà calculée dans un graphe puis de l'afficher
-
-      Retour : None
-
-      Arguments :
-        * fft_mat : ndarray, matrice a representer sur le graph
-        * T : float, durée totale de l'enregistement
-        * displayStretch : float, permet de contrôler l'affichage vertical du graph (plus il est grand moins la
-          frequence max affichée est grande)
-        * cmap : string, permet de preciser la colormap a utiliser pour la representation du graph
-
-    * reconstitution_son(fft_mat_output, frequence_enr, play=True, plot=True)
-
-      Fonction permettant de reconstituer un son a partir d'une matrice
-
-      Retour :
-        * reconstitution : ndarray, contenant le son reconstitué
-
-      Arguments :
-        * fft_mat_output : ndarray, matrice contentant la fft que l'on doit transformer en son
-        * frequence_enr : float/int, fréquence de l'enregistrement à reconstituer
-        * play : boolean (optional), permet de jouer ou non le son reconstitué
-        * plot : boolean (optional), permet d'afficher ou non sur un graph le son reconstitué
+  Les fonctions principales (liste non exhaustive) sont:
+  
+  * > get_sound(file, play=False, frequence_enregistrement=None)
+   
+    Permet de récupérer le son depuis un fichier audio
+  
+  * > matrix_computing_sautant(son_array, frequence_enr, time_step, plot=False, ponderation=False, color_sep=False, ponderation_type='gaussian')
+  
+    Permet de calculer les matrices successives sautantes de notre signal
+  
+  * > matrix_computing_glissant(son_array, frequence_enr, time_step, ponderation=False)
+  
+    Permet de calculer les matrices successives glissantes de notre signal
+  
+  * > spectro_plotting(fft_mat, freq=1, displayStretch=2, title="Spectrogramme", cmap='Blues')
+    
+    Permet de tracer le spectrogramme à partir de la matrice des FFT
+  
+  * > reconstitution_son(fft_mat_output, frequence_enr=44000, play=False, plot=False)
+    
+    Permet de reconstituter le son à partir de la matrice des FFT
+  
+  * > addition_image_fft(image_path, fft_son, amplitude=1., x_scale=.5, x_shift=0., y_scale=.5, y_shift=0.)
+  
+    Permet d'ajouter l'image à la matrice des FFT du son
+  
+  * > addition_image_fft_colored(image, ffts)
+    
+    Permet d'ajouter une image colorée (3 matrices grayscale décalées dans le temps) à la matrice des FFT du son
+  
+  * > save_file(son_array, frequence, path='audio/out.wav')
+  
+    Permet de sauvegarder dans un fichier audio le son reconstitué
+  
+  * > re_assemblage_rgb(matrices_fft)
+    Permet de réassembler les images RGB
 
