@@ -1,5 +1,4 @@
 from spectrogram import *
-import tikzplotlib
 
 time_step = 0.1
 # On charge notre son

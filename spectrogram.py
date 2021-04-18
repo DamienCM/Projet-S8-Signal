@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 def gaussian(t, n, sigma=4):
     """
-    fonction renvoyant la gausienne de ponderation pour faire des spectrogramme plus jolis
+    fonction renvoyant la gaussienne de ponderation pour faire des spectrogramme plus jolis
     entrees :
     t : temps array
     n : temps max
@@ -24,7 +24,7 @@ def gaussian(t, n, sigma=4):
 
 def bartlett(n):
     """
-    fonction renvoyant la bartlett de ponderation pour faire des spectrogramme plus jolis
+    fonction renvoyant la ponderation de bartlett pour faire des spectrogramme plus jolis
     entrees :
     n : temps max
 
@@ -41,7 +41,7 @@ def bartlett(n):
 
 def hann(n):
     """
-    fonction renvoyant la hann de ponderation pour faire des spectrogramme plus jolis
+    fonction renvoyant la ponderation de Hann pour faire des spectrogramme plus jolis
     entrees :
     n : temps max
 
@@ -366,9 +366,11 @@ def addition_image_fft(image_path, fft_son, amplitude=1., x_scale=.5, x_shift=0.
 def addition_image_fft_colored(image, ffts):
     """
     Ajoute les 3 composantes RGB sur la FFT de notre signal (1 couleur par tiers)
-    @param image: path vers l'image
-    @param ffts: tuple contenant les 3 tiers du signal en fft
-    @return: list des 3 tiers de la fft chacun implementé d'une partie de l'image
+    Entree :
+    - image: path vers l'image
+    - ffts: tuple contenant les 3 tiers du signal en fft
+    Sortie :
+    - liste des 3 tiers de la fft chacun implementé d'une partie de l'image
     """
     # Ouverture de l'image
     img = Image.open(image)
@@ -394,19 +396,24 @@ def addition_image_fft_colored(image, ffts):
 def save_file(son_array, frequence, path='audio/out.wav'):
     """
     Fonction permettant d'enregistrer notre son recomposé
-
-    @param son_array: array de notre son
-    @param frequence: frequence d'enregistrement
-    @param path: chemin du fichier que l'on veut enregistrer
+    
+    Entree:
+    - son_array: array de notre son
+    - frequence: frequence d'enregistrement
+    - path: chemin du fichier que l'on veut enregistrer
+    
+    Pas de sortie
     """
     soundfile.write(path, son_array, frequence, format='WAV')
 
 
 def re_assemblage_rgb(matrices_fft):
     """
-
-    @param matrices_fft: les 3 fft a re-assembler
-    @return: big_fft --> la fft re-assemblée
+    Fonction permettant de réassembler les images RGB
+    Entrée:
+    - matrices_fft: les 3 fft a re-assembler
+    Sortie:
+     big_fft --> la fft re-assemblée
              img_reconstitue --> l'image décodée (PIL Image)
     """
     # fft complete du signal en remettant bout a bout
